@@ -1,15 +1,23 @@
+import { useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { ProjectSection } from './components/ProjectSection';
 import { TimelineSection } from './components/TimelineSection';
 import { MovingTank } from './components/Tank';
 import { TrackLine } from './components/TrackLine';
+import { IntroScreen } from './components/IntroScreen';
 import { useHorizontalScroll } from './hooks/useHorizontalScroll';
 import { projects } from './data/projects';
 
 function App() {
+  const [showIntro, setShowIntro] = useState(true);
   const { containerRef, progress, tankX, currentPage, scrollNext, scrollPrev } = useHorizontalScroll();
   const totalPages = projects.length + 2; // Hero + Projects + Timeline
+
+  // Show intro screen first
+  if (showIntro) {
+    return <IntroScreen onEnter={() => setShowIntro(false)} />;
+  }
 
   return (
     <div className="h-screen overflow-hidden bg-military-950">
