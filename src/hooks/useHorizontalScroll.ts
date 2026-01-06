@@ -36,6 +36,9 @@ export function useHorizontalScroll() {
         left: targetPage * pageWidth,
         behavior: 'smooth'
       });
+
+      // Update state immediately for the target page to ensure buttons appear correctly
+      setCurrentPage(targetPage);
     }
   }, []);
 
