@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;600;800;900&family=Black+Ops+One&family=Share+Tech+Mono&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom scrollbar hide */
+::-webkit-scrollbar {
+  display: none;
+}
+
+html {
+  scrollbar-width: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Military theme base styles */
+@layer base {
+  body {
+    @apply bg-military-950 text-white font-sans m-0;
+  }
+}
+
+/* Component styles */
+@layer components {
+  .military-font {
+    font-family: 'Black Ops One', cursive;
+  }
+
+  .mono-font {
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  .tag {
+    @apply px-3 py-1 border border-military-700 rounded text-sm text-military-300 bg-military-900/50 font-mono transition-all;
+  }
+
+  .tag:hover {
+    @apply bg-military-500/30 border-military-500;
+  }
+
+  .card {
+    @apply bg-military-950 border border-military-700/50 rounded-xl p-5;
+  }
+}
+
+/* Animations */
+@layer utilities {
+  .animate-radar {
+    animation: radar 4s linear infinite;
+  }
+
+  @keyframes radar {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+}
