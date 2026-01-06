@@ -48,7 +48,7 @@ export const projects: Project[] = [
     endMonth: 6,
     details: {
       //overview: "KT Skylife BCAP(Business Customer Admin Portal) 프로젝트는 기존 레거시 시스템을 현대적인 Vue2 프레임워크로 마이그레이션하는 대규모 프로젝트입니다.",
-      overview: "The KT Skylife BCAP (Business Customer Admin Portal) project is a large-scale initiative focused on migrating a legacy system to a modern Vue2-based architecture.",
+      overview: "The KT Skylife project is a large-scale initiative focused on migrating a legacy system to a modern Vue2-based architecture.",
       responsibilities: [
         //"프로젝트 전체 일정 및 리소스 관리",
         "Managed the overall project schedule and resource allocation",
