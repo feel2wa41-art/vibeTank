@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Stars, Text3D, Center, Float } from '@react-three/drei';
+import { Stars } from '@react-three/drei';
 import * as THREE from 'three';
 
 // Animated Tank Model (simplified geometric)
@@ -58,32 +58,34 @@ function Explosions() {
   const particlesRef = useRef<THREE.Points>(null);
   const particleCount = 200;
 
-  const positions = new Float32Array(particleCount * 3);
-  const colors = new Float32Array(particleCount * 3);
-  const sizes = new Float32Array(particleCount);
+  // Use useMemo to initialize particle data once
+  const { positions, colors } = useMemo(() => {
+    const pos = new Float32Array(particleCount * 3);
+    const col = new Float32Array(particleCount * 3);
 
-  for (let i = 0; i < particleCount; i++) {
-    positions[i * 3] = (Math.random() - 0.5) * 20;
-    positions[i * 3 + 1] = Math.random() * 5;
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 20;
+    for (let i = 0; i < particleCount; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 20;
+      pos[i * 3 + 1] = Math.random() * 5;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 20;
 
-    // Orange/red colors
-    colors[i * 3] = 0.8 + Math.random() * 0.2;
-    colors[i * 3 + 1] = 0.2 + Math.random() * 0.3;
-    colors[i * 3 + 2] = 0;
+      // Orange/red colors
+      col[i * 3] = 0.8 + Math.random() * 0.2;
+      col[i * 3 + 1] = 0.2 + Math.random() * 0.3;
+      col[i * 3 + 2] = 0;
+    }
 
-    sizes[i] = Math.random() * 0.5 + 0.1;
-  }
+    return { positions: pos, colors: col };
+  }, []);
 
   useFrame((state) => {
     if (particlesRef.current) {
-      const positions = particlesRef.current.geometry.attributes.position.array as Float32Array;
+      const posArray = particlesRef.current.geometry.attributes.position.array as Float32Array;
       for (let i = 0; i < particleCount; i++) {
-        positions[i * 3 + 1] += 0.02;
-        if (positions[i * 3 + 1] > 5) {
-          positions[i * 3 + 1] = 0;
-          positions[i * 3] = (Math.random() - 0.5) * 20;
-          positions[i * 3 + 2] = (Math.random() - 0.5) * 20;
+        posArray[i * 3 + 1] += 0.02;
+        if (posArray[i * 3 + 1] > 5) {
+          posArray[i * 3 + 1] = 0;
+          posArray[i * 3] = (Math.random() - 0.5) * 20;
+          posArray[i * 3 + 2] = (Math.random() - 0.5) * 20;
         }
       }
       particlesRef.current.geometry.attributes.position.needsUpdate = true;
@@ -91,22 +93,16 @@ function Explosions() {
     }
   });
 
+  // Create geometry with attributes
+  const geometry = useMemo(() => {
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    return geo;
+  }, [positions, colors]);
+
   return (
-    <points ref={particlesRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={particleCount}
-          array={positions}
-          itemSize={3}
-        />
-        <bufferAttribute
-          attach="attributes-color"
-          count={particleCount}
-          array={colors}
-          itemSize={3}
-        />
-      </bufferGeometry>
+    <points ref={particlesRef} geometry={geometry}>
       <pointsMaterial
         size={0.15}
         vertexColors
@@ -123,38 +119,40 @@ function Smoke() {
   const smokeRef = useRef<THREE.Points>(null);
   const particleCount = 100;
 
-  const positions = new Float32Array(particleCount * 3);
-
-  for (let i = 0; i < particleCount; i++) {
-    positions[i * 3] = (Math.random() - 0.5) * 15;
-    positions[i * 3 + 1] = Math.random() * 3;
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 15 - 5;
-  }
+  // Use useMemo to initialize particle positions once
+  const positions = useMemo(() => {
+    const pos = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 15;
+      pos[i * 3 + 1] = Math.random() * 3;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 15 - 5;
+    }
+    return pos;
+  }, []);
 
   useFrame(() => {
     if (smokeRef.current) {
-      const positions = smokeRef.current.geometry.attributes.position.array as Float32Array;
+      const posArray = smokeRef.current.geometry.attributes.position.array as Float32Array;
       for (let i = 0; i < particleCount; i++) {
-        positions[i * 3 + 1] += 0.01;
-        positions[i * 3] += (Math.random() - 0.5) * 0.02;
-        if (positions[i * 3 + 1] > 4) {
-          positions[i * 3 + 1] = 0;
+        posArray[i * 3 + 1] += 0.01;
+        posArray[i * 3] += (Math.random() - 0.5) * 0.02;
+        if (posArray[i * 3 + 1] > 4) {
+          posArray[i * 3 + 1] = 0;
         }
       }
       smokeRef.current.geometry.attributes.position.needsUpdate = true;
     }
   });
 
+  // Create geometry with attributes
+  const geometry = useMemo(() => {
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    return geo;
+  }, [positions]);
+
   return (
-    <points ref={smokeRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={particleCount}
-          array={positions}
-          itemSize={3}
-        />
-      </bufferGeometry>
+    <points ref={smokeRef} geometry={geometry}>
       <pointsMaterial
         size={0.4}
         color="#555555"
@@ -169,11 +167,17 @@ function Smoke() {
 // Moving camera
 function CameraAnimation() {
   const { camera } = useThree();
+  const cameraRef = useRef(camera);
+
+  useEffect(() => {
+    cameraRef.current = camera;
+  }, [camera]);
 
   useFrame((state) => {
-    camera.position.x = Math.sin(state.clock.elapsedTime * 0.2) * 3;
-    camera.position.z = 8 + Math.cos(state.clock.elapsedTime * 0.15) * 2;
-    camera.lookAt(0, 0, 0);
+    const cam = cameraRef.current;
+    cam.position.x = Math.sin(state.clock.elapsedTime * 0.2) * 3;
+    cam.position.z = 8 + Math.cos(state.clock.elapsedTime * 0.15) * 2;
+    cam.lookAt(0, 0, 0);
   });
 
   return null;
@@ -196,7 +200,6 @@ function Ground() {
 
 // Muzzle flash effect
 function MuzzleFlash() {
-  const lightRef = useRef<THREE.PointLight>(null);
   const [intensity, setIntensity] = useState(0);
 
   useEffect(() => {
@@ -208,7 +211,6 @@ function MuzzleFlash() {
 
   return (
     <pointLight
-      ref={lightRef}
       position={[0, 1, 2]}
       color="#ff6600"
       intensity={intensity}
@@ -226,6 +228,7 @@ export function IntroScreen({ onEnter }: IntroScreenProps) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [showButton, setShowButton] = useState(false);
   const [typedText, setTypedText] = useState('');
+  const [startTyping, setStartTyping] = useState(false);
   const fullText = 'MISSION BRIEFING INITIALIZED...';
 
   // Simulate loading
@@ -243,9 +246,16 @@ export function IntroScreen({ onEnter }: IntroScreenProps) {
     return () => clearInterval(interval);
   }, []);
 
+  // Trigger typing when load progress reaches 50%
+  useEffect(() => {
+    if (loadProgress >= 50 && !startTyping) {
+      setStartTyping(true);
+    }
+  }, [loadProgress, startTyping]);
+
   // Typing effect
   useEffect(() => {
-    if (loadProgress < 50) return;
+    if (!startTyping) return;
 
     let index = 0;
     const interval = setInterval(() => {
@@ -258,7 +268,7 @@ export function IntroScreen({ onEnter }: IntroScreenProps) {
       }
     }, 50);
     return () => clearInterval(interval);
-  }, [loadProgress >= 50]);
+  }, [startTyping, fullText]);
 
   return (
     <div className="fixed inset-0 z-50 bg-military-950">
