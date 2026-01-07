@@ -31,14 +31,20 @@ export function useHorizontalScroll() {
       const pageWidth = window.innerWidth;
       const totalPages = Math.ceil(containerRef.current.scrollWidth / pageWidth);
       const targetPage = Math.max(0, Math.min(pageIndex, totalPages - 1));
+      const maxScroll = containerRef.current.scrollWidth - containerRef.current.clientWidth;
+      const targetScrollLeft = targetPage * pageWidth;
 
       containerRef.current.scrollTo({
-        left: targetPage * pageWidth,
+        left: targetScrollLeft,
         behavior: 'smooth'
       });
 
-      // Update state immediately for the target page to ensure buttons appear correctly
+      // Update all state immediately for smooth tank movement
       setCurrentPage(targetPage);
+      const targetProgress = maxScroll > 0 ? (targetScrollLeft / maxScroll) * 100 : 0;
+      setProgress(targetProgress);
+      setScrollX(targetScrollLeft);
+      setTankX(50 + (targetProgress / 100) * (window.innerWidth - 200));
     }
   }, []);
 
