@@ -21,7 +21,7 @@ function App() {
 
   return (
     <div className="h-screen overflow-hidden bg-military-950">
-      <Navbar progress={progress} />
+      <Navbar progress={progress} onHomeClick={() => setShowIntro(true)} />
       <MovingTank x={tankX} />
       <TrackLine />
 
