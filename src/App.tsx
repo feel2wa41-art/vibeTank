@@ -8,6 +8,7 @@ import { MovingTank } from './components/Tank';
 import { TrackLine } from './components/TrackLine';
 import { IntroScreen } from './components/IntroScreen';
 import { AdminPage } from './pages/AdminPage';
+import { AiChat } from './components/AiChat';
 import { DataProvider, useData } from './context/DataContext';
 import { useHorizontalScroll } from './hooks/useHorizontalScroll';
 
@@ -18,6 +19,7 @@ function Portfolio() {
   const [showIntro, setShowIntro] = useState(true);
   const [showAdmin, setShowAdmin] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showChat, setShowChat] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState(false);
   const { projects } = useData();
@@ -61,6 +63,16 @@ function Portfolio() {
       <MovingTank x={tankX} />
       <TrackLine />
 
+      {/* AI Chat Button */}
+      <button
+        onClick={() => setShowChat(true)}
+        className="fixed bottom-4 right-16 z-50 w-12 h-12 rounded-full bg-gradient-to-br from-cyan-600 to-green-600 border border-cyan-500/50 text-white hover:from-cyan-500 hover:to-green-500 transition-all duration-300 flex items-center justify-center backdrop-blur-sm text-xl shadow-lg hover:shadow-cyan-500/30 hover:scale-110"
+        aria-label="AI Chat"
+        title="Chat with TANK AI"
+      >
+        🤖
+      </button>
+
       {/* Admin Button */}
       <button
         onClick={() => setShowPasswordModal(true)}
@@ -70,6 +82,9 @@ function Portfolio() {
       >
         ⚙️
       </button>
+
+      {/* AI Chat Modal */}
+      <AiChat isOpen={showChat} onClose={() => setShowChat(false)} />
 
       {/* Password Modal */}
       {showPasswordModal && (
