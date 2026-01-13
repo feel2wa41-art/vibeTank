@@ -112,12 +112,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
         const content = data.content;
         // Merge with defaults to ensure all required fields exist and fix old data
         if (content.projects) {
-          // Fix image paths: replace .webp with .png if file doesn't exist
-          const fixedProjects = content.projects.map((p: Project, index: number) => ({
-            ...defaultProjects[index], // Use defaults as base
-            ...p, // Override with saved data
-            iconImage: defaultProjects[index]?.iconImage || p.iconImage // Prefer default iconImage path
-          }));
+          // Fix image paths: ALWAYS use default iconImage paths (ignore stored paths)
+          const fixedProjects = content.projects.map((p: Project) => {
+            // Find matching default project by id
+            const defaultProject = defaultProjects.find(dp => dp.id === p.id);
+            return {
+              ...p,
+              // ALWAYS use default iconImage, never use stored one
+              iconImage: defaultProject?.iconImage
+            };
+          });
           setProjects(fixedProjects);
         }
         if (content.profileInfo) setProfileInfo(content.profileInfo);
@@ -137,13 +141,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const data = JSON.parse(stored);
-        // Fix image paths: always use default iconImage paths
+        // Fix image paths: ALWAYS use default iconImage paths (ignore stored paths)
         if (data.projects) {
-          const fixedProjects = data.projects.map((p: Project, index: number) => ({
-            ...defaultProjects[index], // Use defaults as base
-            ...p, // Override with saved data
-            iconImage: defaultProjects[index]?.iconImage || p.iconImage // Prefer default iconImage path
-          }));
+          const fixedProjects = data.projects.map((p: Project) => {
+            // Find matching default project by id
+            const defaultProject = defaultProjects.find(dp => dp.id === p.id);
+            return {
+              ...p,
+              // ALWAYS use default iconImage, never use stored one
+              iconImage: defaultProject?.iconImage
+            };
+          });
           setProjects(fixedProjects);
         }
         if (data.profileInfo) setProfileInfo(data.profileInfo);
