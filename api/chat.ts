@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { streamText } from 'ai';
+import { StreamingTextResponse, streamText } from 'ai';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -22,7 +22,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       apiKey: apiKey,
     });
 
-    const result = streamText({
+    const result = await streamText({
       model: google('gemini-pro'),
       system: `You are TANK AI, a helpful assistant for the vibeTank portfolio website.
 You speak in a friendly, slightly military-themed tone.
@@ -37,8 +37,16 @@ Always be encouraging and supportive!`,
       messages,
     });
 
-    // Use pipeDataStreamToResponse for proper useChat compatibility
-    result.pipeDataStreamToResponse(res);
+    // Set headers for AI SDK streaming format
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('X-Vercel-AI-Data-Stream', 'v1');
+
+    // Stream using AI SDK format for useChat compatibility
+    for await (const chunk of result.textStream) {
+      // AI SDK data stream format: 0:text\n
+      res.write(`0:${JSON.stringify(chunk)}\n`);
+    }
+    res.end();
   } catch (error) {
     console.error('Chat API error:', error);
     return res.status(500).json({
