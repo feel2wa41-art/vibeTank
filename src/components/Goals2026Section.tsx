@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
+import { useData } from '../context/DataContext';
 
 export function Goals2026Section() {
+  const { goals2026 } = useData();
   const [loaded, setLoaded] = useState(false);
   const [activeGoal, setActiveGoal] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -27,10 +29,10 @@ export function Goals2026Section() {
     if (!loaded) return;
 
     const interval = setInterval(() => {
-      setActiveGoal(prev => (prev + 1) % 4);
+      setActiveGoal(prev => (prev + 1) % goals2026.length);
     }, 4000);
     return () => clearInterval(interval);
-  }, [loaded]);
+  }, [loaded, goals2026.length]);
 
   // Particle system
   useEffect(() => {
@@ -105,44 +107,8 @@ export function Goals2026Section() {
     };
   }, []);
 
-  const goals = [
-    {
-      id: 1,
-      title: "MTI MAINTENANCE",
-      subtitle: "Claude AI Integration",
-      description: "Achieving complete mastery of MTI system maintenance through Claude AI. Building intelligent automation and predictive maintenance.",
-      icon: "🤖",
-      color: "#00f5ff",
-      features: ["AI Diagnostics", "Auto-Recovery", "Predictive Analytics", "Zero-Downtime"]
-    },
-    {
-      id: 2,
-      title: "LECTURE SYSTEM",
-      subtitle: "Next-Gen Education",
-      description: "Revolutionary learning management system with AI tutoring, real-time collaboration, and immersive content delivery.",
-      icon: "🎓",
-      color: "#ff00ff",
-      features: ["AI Tutor", "VR/AR Learning", "Real-time Analytics", "Adaptive Curriculum"]
-    },
-    {
-      id: 3,
-      title: "KB FINANCIAL KPI",
-      subtitle: "Enterprise Intelligence",
-      description: "Building cutting-edge KPI management system for KB Financial Group with real-time dashboards and AI-driven insights.",
-      icon: "📊",
-      color: "#ffff00",
-      features: ["Live Dashboards", "AI Predictions", "Auto Reports", "Goal Tracking"]
-    },
-    {
-      id: 4,
-      title: "AI EXPANSION",
-      subtitle: "IT Innovation & Growth",
-      description: "Expanding IT capabilities through AI solutions, machine learning, automation, and intelligent systems.",
-      icon: "🚀",
-      color: "#00ff88",
-      features: ["ML Integration", "Process Automation", "Smart Analytics", "AI Consulting"]
-    }
-  ];
+  // Goals data from context
+  const goals = goals2026;
 
   return (
     <section

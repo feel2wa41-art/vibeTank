@@ -1,6 +1,8 @@
-import { projects, months, profileInfo } from '../data/projects';
+import { months } from '../data/projects';
+import { useData } from '../context/DataContext';
 
 export function TimelineSection() {
+  const { projects, profileInfo } = useData();
   return (
     <section className="flex-shrink-0 w-screen h-screen flex flex-col items-center justify-center relative px-8 bg-military-950">
       {/* Timeline connector */}

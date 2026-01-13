@@ -1,7 +1,8 @@
 import { Tank } from './Tank';
-import { profileInfo } from '../data/projects';
+import { useData } from '../context/DataContext';
 
 export function HeroSection() {
+  const { profileInfo } = useData();
   return (
     <section className="flex-shrink-0 w-screen h-screen flex items-center justify-center relative">
       {/* Grid overlay */}
