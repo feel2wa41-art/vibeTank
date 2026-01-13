@@ -29,6 +29,89 @@ const LoadingFallback = ({ message = 'Loading...' }: { message?: string }) => (
   </div>
 );
 
+// Separate component for main content with scroll - will remount when key changes
+function MainContent({ onHomeClick, onAdminClick, onChatClick }: {
+  onHomeClick: () => void;
+  onAdminClick: () => void;
+  onChatClick: () => void;
+}) {
+  const { projects } = useData();
+  const { containerRef, progress, tankX, currentPage, scrollNext, scrollPrev } = useHorizontalScroll();
+  const totalPages = projects.length + 3;
+
+  return (
+    <div className="h-screen overflow-hidden bg-military-950">
+      <Navbar progress={progress} onHomeClick={onHomeClick} />
+      <MovingTank x={tankX} />
+      <TrackLine />
+
+      {/* AI Chat Button */}
+      <button
+        onClick={onChatClick}
+        className="fixed bottom-4 right-16 z-50 w-12 h-12 rounded-full bg-gradient-to-br from-cyan-600 to-green-600 border border-cyan-500/50 text-white hover:from-cyan-500 hover:to-green-500 transition-all duration-300 flex items-center justify-center backdrop-blur-sm text-xl shadow-lg hover:shadow-cyan-500/30 hover:scale-110"
+        aria-label="AI Chat"
+        title="Chat with TANK AI"
+      >
+        🤖
+      </button>
+
+      {/* Admin Button */}
+      <button
+        onClick={onAdminClick}
+        className="fixed bottom-4 right-4 z-50 w-10 h-10 rounded-full bg-military-900/80 border border-military-700 text-military-500 hover:bg-military-500 hover:text-military-950 transition-all duration-300 flex items-center justify-center backdrop-blur-sm text-lg"
+        aria-label="Admin Panel"
+        title="Admin Panel"
+      >
+        ⚙️
+      </button>
+
+      {/* Navigation Buttons */}
+      {currentPage > 0 && (
+        <button
+          onClick={scrollPrev}
+          className="fixed left-6 top-1/2 -translate-y-1/2 z-50 w-14 h-14 rounded-full bg-military-900/80 border border-military-500/50 text-military-500 hover:bg-military-500 hover:text-military-950 transition-all duration-300 flex items-center justify-center backdrop-blur-sm group"
+          aria-label="Previous page"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="group-hover:scale-110 transition-transform">
+            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+          </svg>
+        </button>
+      )}
+
+      {currentPage < totalPages - 1 && (
+        <button
+          onClick={scrollNext}
+          className="fixed right-6 top-1/2 -translate-y-1/2 z-50 w-14 h-14 rounded-full bg-military-900/80 border border-military-500/50 text-military-500 hover:bg-military-500 hover:text-military-950 transition-all duration-300 flex items-center justify-center backdrop-blur-sm group"
+          aria-label="Next page"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="group-hover:scale-110 transition-transform">
+            <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
+          </svg>
+        </button>
+      )}
+
+      {/* Horizontal Scroll Container */}
+      <div
+        ref={containerRef}
+        className="flex h-screen overflow-x-auto overflow-y-hidden"
+        style={{ scrollBehavior: 'smooth' }}
+      >
+        <HeroSection />
+
+        {projects.map((project) => (
+          <ProjectSection
+            key={project.id}
+            project={project}
+          />
+        ))}
+
+        <TimelineSection />
+        <Goals2026Section />
+      </div>
+    </div>
+  );
+}
+
 function Portfolio() {
   const [showIntro, setShowIntro] = useState(true);
   const [showAdmin, setShowAdmin] = useState(false);
@@ -36,13 +119,11 @@ function Portfolio() {
   const [showChat, setShowChat] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState(false);
-  const { projects } = useData();
-  const { containerRef, progress, tankX, currentPage, scrollNext, scrollPrev, resetScroll } = useHorizontalScroll();
-  const totalPages = projects.length + 3; // Hero + Projects + Timeline + Goals2026
+  const [contentKey, setContentKey] = useState(0); // Key to force remount MainContent
 
-  // Handle going back to intro - reset scroll position
+  // Handle going back to intro - increment key to force remount
   const handleHomeClick = () => {
-    resetScroll();
+    setContentKey(prev => prev + 1);
     setShowIntro(true);
   };
 
@@ -86,30 +167,14 @@ function Portfolio() {
   }
 
   return (
-    <div className="h-screen overflow-hidden bg-military-950">
-      <Navbar progress={progress} onHomeClick={handleHomeClick} />
-      <MovingTank x={tankX} />
-      <TrackLine />
-
-      {/* AI Chat Button */}
-      <button
-        onClick={() => setShowChat(true)}
-        className="fixed bottom-4 right-16 z-50 w-12 h-12 rounded-full bg-gradient-to-br from-cyan-600 to-green-600 border border-cyan-500/50 text-white hover:from-cyan-500 hover:to-green-500 transition-all duration-300 flex items-center justify-center backdrop-blur-sm text-xl shadow-lg hover:shadow-cyan-500/30 hover:scale-110"
-        aria-label="AI Chat"
-        title="Chat with TANK AI"
-      >
-        🤖
-      </button>
-
-      {/* Admin Button */}
-      <button
-        onClick={() => setShowPasswordModal(true)}
-        className="fixed bottom-4 right-4 z-50 w-10 h-10 rounded-full bg-military-900/80 border border-military-700 text-military-500 hover:bg-military-500 hover:text-military-950 transition-all duration-300 flex items-center justify-center backdrop-blur-sm text-lg"
-        aria-label="Admin Panel"
-        title="Admin Panel"
-      >
-        ⚙️
-      </button>
+    <>
+      {/* Main Content with key to force remount */}
+      <MainContent
+        key={contentKey}
+        onHomeClick={handleHomeClick}
+        onAdminClick={() => setShowPasswordModal(true)}
+        onChatClick={() => setShowChat(true)}
+      />
 
       {/* AI Chat Modal */}
       <Suspense fallback={null}>
@@ -166,53 +231,7 @@ function Portfolio() {
           </div>
         </div>
       )}
-
-      {/* Navigation Buttons */}
-      {currentPage > 0 && (
-        <button
-          onClick={scrollPrev}
-          className="fixed left-6 top-1/2 -translate-y-1/2 z-50 w-14 h-14 rounded-full bg-military-900/80 border border-military-500/50 text-military-500 hover:bg-military-500 hover:text-military-950 transition-all duration-300 flex items-center justify-center backdrop-blur-sm group"
-          aria-label="Previous page"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="group-hover:scale-110 transition-transform">
-            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
-          </svg>
-        </button>
-      )}
-
-      {currentPage < totalPages - 1 && (
-        <button
-          onClick={scrollNext}
-          className="fixed right-6 top-1/2 -translate-y-1/2 z-50 w-14 h-14 rounded-full bg-military-900/80 border border-military-500/50 text-military-500 hover:bg-military-500 hover:text-military-950 transition-all duration-300 flex items-center justify-center backdrop-blur-sm group"
-          aria-label="Next page"
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="group-hover:scale-110 transition-transform">
-            <path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/>
-          </svg>
-        </button>
-      )}
-
-      {/* Horizontal Scroll Container */}
-      <div
-        ref={containerRef}
-        className="flex h-screen overflow-x-auto overflow-y-hidden"
-        style={{ scrollBehavior: 'smooth' }}
-      >
-        <HeroSection />
-
-        {projects.map((project) => (
-          <ProjectSection
-            key={project.id}
-            project={project}
-          />
-        ))}
-
-        <TimelineSection />
-
-        {/* 2026 Goals - Final Section */}
-        <Goals2026Section />
-      </div>
-    </div>
+    </>
   );
 }
 
