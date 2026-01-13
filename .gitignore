@@ -28,3 +28,9 @@ dist-ssr
 *.sln
 *.sw?
 .playwright-mcp/
+
+# Temporary files
+tmpclaude-*-cwd
+*.zip
+temp/
+tmp/
