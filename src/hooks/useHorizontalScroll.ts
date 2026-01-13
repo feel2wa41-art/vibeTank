@@ -9,6 +9,7 @@ export function useHorizontalScroll() {
   const [progress, setProgress] = useState(0);
   const [tankX, setTankX] = useState(50);
   const [currentPage, setCurrentPage] = useState(0);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const updateProgress = useCallback(() => {
     if (containerRef.current) {
@@ -110,32 +111,48 @@ export function useHorizontalScroll() {
     }
   }, [updateProgress, findScrollableParent]);
 
-  // Initialize state when component mounts
+  // Initialize state when component mounts - use multiple timing strategies for production reliability
   useEffect(() => {
     const container = containerRef.current;
-    if (container) {
-      // Force reset scroll position to start
-      container.scrollLeft = 0;
-      // Initialize state
-      setScrollX(0);
-      setProgress(0);
-      setTankX(50);
-      setCurrentPage(0);
-
-      // Double-check after a small delay to ensure scroll position is reset
-      const timeoutId = setTimeout(() => {
-        if (container.scrollLeft !== 0) {
-          container.scrollLeft = 0;
-          setScrollX(0);
-          setProgress(0);
-          setTankX(50);
-          setCurrentPage(0);
+    if (container && !isInitialized) {
+      const resetScrollState = () => {
+        if (containerRef.current) {
+          containerRef.current.scrollLeft = 0;
         }
-      }, 100);
+        setScrollX(0);
+        setProgress(0);
+        setTankX(50);
+        setCurrentPage(0);
+      };
 
-      return () => clearTimeout(timeoutId);
+      // Immediate reset
+      resetScrollState();
+
+      // Use requestAnimationFrame for after browser paint
+      const rafId = requestAnimationFrame(() => {
+        resetScrollState();
+        setIsInitialized(true);
+      });
+
+      // Also use setTimeout as fallback for edge cases
+      const timeoutId = setTimeout(() => {
+        resetScrollState();
+      }, 50);
+
+      // Another check after scroll events settle
+      const timeoutId2 = setTimeout(() => {
+        if (containerRef.current && containerRef.current.scrollLeft !== 0) {
+          resetScrollState();
+        }
+      }, 150);
+
+      return () => {
+        cancelAnimationFrame(rafId);
+        clearTimeout(timeoutId);
+        clearTimeout(timeoutId2);
+      };
     }
-  }, []); // Only run on mount
+  }, [isInitialized]); // Only run when not initialized
 
   useEffect(() => {
     const container = containerRef.current;
