@@ -111,53 +111,58 @@ export function useHorizontalScroll() {
     }
   }, [updateProgress, findScrollableParent]);
 
-  // Initialize state when component mounts - use multiple timing strategies for production reliability
+  // Initialize state when component mounts - reset scroll BEFORE adding event listeners
   useEffect(() => {
     const container = containerRef.current;
-    if (container && !isInitialized) {
-      const resetScrollState = () => {
-        if (containerRef.current) {
-          containerRef.current.scrollLeft = 0;
-        }
-        setScrollX(0);
-        setProgress(0);
-        setTankX(50);
-        setCurrentPage(0);
-      };
+    if (!container) return;
 
-      // Immediate reset
+    // Immediately disable smooth scroll and reset position
+    container.style.scrollBehavior = 'auto';
+    container.scrollLeft = 0;
+
+    // Reset all state synchronously
+    setScrollX(0);
+    setProgress(0);
+    setTankX(50);
+    setCurrentPage(0);
+
+    // Use multiple timing strategies to ensure reset
+    const resetScrollState = () => {
+      if (containerRef.current) {
+        containerRef.current.scrollLeft = 0;
+      }
+      setScrollX(0);
+      setProgress(0);
+      setTankX(50);
+      setCurrentPage(0);
+    };
+
+    // After paint
+    const rafId = requestAnimationFrame(() => {
       resetScrollState();
+      // Restore smooth scroll after reset
+      if (containerRef.current) {
+        containerRef.current.style.scrollBehavior = 'smooth';
+      }
+      setIsInitialized(true);
+    });
 
-      // Use requestAnimationFrame for after browser paint
-      const rafId = requestAnimationFrame(() => {
-        resetScrollState();
-        setIsInitialized(true);
-      });
+    // Fallback timeout
+    const timeoutId = setTimeout(() => {
+      resetScrollState();
+    }, 100);
 
-      // Also use setTimeout as fallback for edge cases
-      const timeoutId = setTimeout(() => {
-        resetScrollState();
-      }, 50);
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(timeoutId);
+    };
+  }, []); // Only run on mount
 
-      // Another check after scroll events settle
-      const timeoutId2 = setTimeout(() => {
-        if (containerRef.current && containerRef.current.scrollLeft !== 0) {
-          resetScrollState();
-        }
-      }, 150);
-
-      return () => {
-        cancelAnimationFrame(rafId);
-        clearTimeout(timeoutId);
-        clearTimeout(timeoutId2);
-      };
-    }
-  }, [isInitialized]); // Only run when not initialized
-
+  // Add scroll event listeners ONLY after initialization is complete
   useEffect(() => {
     const container = containerRef.current;
 
-    if (container) {
+    if (container && isInitialized) {
       container.addEventListener('wheel', handleWheel, { passive: false });
       container.addEventListener('scroll', updateProgress);
       return () => {
@@ -165,7 +170,7 @@ export function useHorizontalScroll() {
         container.removeEventListener('scroll', updateProgress);
       };
     }
-  }, [handleWheel, updateProgress]);
+  }, [handleWheel, updateProgress, isInitialized]);
 
   return { containerRef, scrollX, progress, tankX, currentPage, scrollNext, scrollPrev, scrollToPage, resetScroll };
 }
