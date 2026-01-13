@@ -110,7 +110,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
       if (data?.content) {
         const content = data.content;
-        if (content.projects) setProjects(content.projects);
+        // Merge with defaults to ensure all required fields exist and fix old data
+        if (content.projects) {
+          // Fix image paths: replace .webp with .png if file doesn't exist
+          const fixedProjects = content.projects.map((p: Project, index: number) => ({
+            ...defaultProjects[index], // Use defaults as base
+            ...p, // Override with saved data
+            iconImage: defaultProjects[index]?.iconImage || p.iconImage // Prefer default iconImage path
+          }));
+          setProjects(fixedProjects);
+        }
         if (content.profileInfo) setProfileInfo(content.profileInfo);
         if (content.goals2026) setGoals2026(content.goals2026);
         return true;
@@ -128,7 +137,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const data = JSON.parse(stored);
-        if (data.projects) setProjects(data.projects);
+        // Fix image paths: always use default iconImage paths
+        if (data.projects) {
+          const fixedProjects = data.projects.map((p: Project, index: number) => ({
+            ...defaultProjects[index], // Use defaults as base
+            ...p, // Override with saved data
+            iconImage: defaultProjects[index]?.iconImage || p.iconImage // Prefer default iconImage path
+          }));
+          setProjects(fixedProjects);
+        }
         if (data.profileInfo) setProfileInfo(data.profileInfo);
         if (data.goals2026) setGoals2026(data.goals2026);
         return true;

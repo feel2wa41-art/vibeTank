@@ -116,19 +116,9 @@ export function useHorizontalScroll() {
     const container = containerRef.current;
     if (!container) return;
 
-    // Immediately disable smooth scroll and reset position
-    container.style.scrollBehavior = 'auto';
-    container.scrollLeft = 0;
-
-    // Reset all state synchronously
-    setScrollX(0);
-    setProgress(0);
-    setTankX(50);
-    setCurrentPage(0);
-
-    // Use multiple timing strategies to ensure reset
     const resetScrollState = () => {
       if (containerRef.current) {
+        containerRef.current.style.scrollBehavior = 'auto';
         containerRef.current.scrollLeft = 0;
       }
       setScrollX(0);
@@ -137,24 +127,44 @@ export function useHorizontalScroll() {
       setCurrentPage(0);
     };
 
-    // After paint
+    // Immediate reset
+    resetScrollState();
+
+    // Use multiple timing strategies with increasing delays
     const rafId = requestAnimationFrame(() => {
       resetScrollState();
-      // Restore smooth scroll after reset
+    });
+
+    const timeoutId1 = setTimeout(() => {
+      resetScrollState();
+    }, 0);
+
+    const timeoutId2 = setTimeout(() => {
+      resetScrollState();
+    }, 50);
+
+    const timeoutId3 = setTimeout(() => {
+      resetScrollState();
+      // Restore smooth scroll and mark as initialized only after all resets
       if (containerRef.current) {
         containerRef.current.style.scrollBehavior = 'smooth';
       }
       setIsInitialized(true);
-    });
-
-    // Fallback timeout
-    const timeoutId = setTimeout(() => {
-      resetScrollState();
     }, 100);
+
+    // Final safety check
+    const timeoutId4 = setTimeout(() => {
+      if (containerRef.current && containerRef.current.scrollLeft !== 0) {
+        resetScrollState();
+      }
+    }, 200);
 
     return () => {
       cancelAnimationFrame(rafId);
-      clearTimeout(timeoutId);
+      clearTimeout(timeoutId1);
+      clearTimeout(timeoutId2);
+      clearTimeout(timeoutId3);
+      clearTimeout(timeoutId4);
     };
   }, []); // Only run on mount
 
