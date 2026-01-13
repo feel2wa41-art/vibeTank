@@ -11,12 +11,39 @@ import { AdminPage } from './pages/AdminPage';
 import { DataProvider, useData } from './context/DataContext';
 import { useHorizontalScroll } from './hooks/useHorizontalScroll';
 
+// Admin password from environment variable (default: 'tank2025')
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'tank2025';
+
 function Portfolio() {
   const [showIntro, setShowIntro] = useState(true);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [password, setPassword] = useState('');
+  const [passwordError, setPasswordError] = useState(false);
   const { projects } = useData();
   const { containerRef, progress, tankX, currentPage, scrollNext, scrollPrev } = useHorizontalScroll();
   const totalPages = projects.length + 3; // Hero + Projects + Timeline + Goals2026
+
+  // Handle password submission
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === ADMIN_PASSWORD) {
+      setShowAdmin(true);
+      setShowPasswordModal(false);
+      setPassword('');
+      setPasswordError(false);
+    } else {
+      setPasswordError(true);
+      setPassword('');
+    }
+  };
+
+  // Close password modal
+  const closePasswordModal = () => {
+    setShowPasswordModal(false);
+    setPassword('');
+    setPasswordError(false);
+  };
 
   // Show admin page
   if (showAdmin) {
@@ -36,13 +63,64 @@ function Portfolio() {
 
       {/* Admin Button */}
       <button
-        onClick={() => setShowAdmin(true)}
+        onClick={() => setShowPasswordModal(true)}
         className="fixed bottom-4 right-4 z-50 w-10 h-10 rounded-full bg-military-900/80 border border-military-700 text-military-500 hover:bg-military-500 hover:text-military-950 transition-all duration-300 flex items-center justify-center backdrop-blur-sm text-lg"
         aria-label="Admin Panel"
         title="Admin Panel"
       >
         ⚙️
       </button>
+
+      {/* Password Modal */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="bg-military-900 border border-military-600 rounded-xl p-6 w-80 shadow-2xl">
+            <div className="text-center mb-6">
+              <div className="text-3xl mb-2">🔐</div>
+              <h2 className="military-font text-xl text-military-500">ADMIN ACCESS</h2>
+              <p className="mono-font text-xs text-military-400 mt-1">Enter password to continue</p>
+            </div>
+
+            <form onSubmit={handlePasswordSubmit}>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setPasswordError(false);
+                }}
+                placeholder="Password"
+                autoFocus
+                className={`w-full px-4 py-3 bg-military-800 border rounded-lg text-white text-center mono-font tracking-widest ${
+                  passwordError ? 'border-red-500 shake' : 'border-military-600'
+                }`}
+              />
+
+              {passwordError && (
+                <p className="text-red-400 text-xs text-center mt-2 mono-font">
+                  ❌ Incorrect password
+                </p>
+              )}
+
+              <div className="flex gap-2 mt-4">
+                <button
+                  type="button"
+                  onClick={closePasswordModal}
+                  className="flex-1 px-4 py-2 bg-military-800 border border-military-600 rounded-lg text-military-400 hover:bg-military-700 transition mono-font text-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-2 bg-military-500 text-military-950 rounded-lg font-bold hover:bg-military-400 transition"
+                >
+                  Enter
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Navigation Buttons */}
       {currentPage > 0 && (
