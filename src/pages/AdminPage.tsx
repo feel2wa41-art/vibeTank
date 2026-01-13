@@ -276,13 +276,36 @@ export default function AdminPage({ onBack }: { onBack: () => void }) {
                         />
                       </div>
                       <div>
-                        <label className="block mono-font text-xs text-military-400 mb-1">Icon</label>
+                        <label className="block mono-font text-xs text-military-400 mb-1">Icon (Emoji)</label>
                         <input
                           type="text"
                           value={editingProject.icon}
                           onChange={e => setEditingProject({ ...editingProject, icon: e.target.value })}
                           className="w-full px-2 py-1 bg-military-800 border border-military-600 rounded text-white text-sm"
                         />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="block mono-font text-xs text-military-400 mb-1">Logo Image Path (optional)</label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={editingProject.iconImage || ''}
+                            onChange={e => setEditingProject({ ...editingProject, iconImage: e.target.value || undefined })}
+                            placeholder="/logos/project-logo.png"
+                            className="flex-1 px-2 py-1 bg-military-800 border border-military-600 rounded text-white text-sm"
+                          />
+                          {editingProject.iconImage && (
+                            <img
+                              src={editingProject.iconImage}
+                              alt="Preview"
+                              className="w-8 h-8 object-contain bg-military-700 rounded"
+                              onError={(e) => e.currentTarget.style.display = 'none'}
+                            />
+                          )}
+                        </div>
+                        <p className="text-xs text-military-500 mt-1">
+                          Put image files in public/logos/ folder. Path example: /logos/my-logo.png
+                        </p>
                       </div>
                       <div>
                         <label className="block mono-font text-xs text-military-400 mb-1">Period</label>
