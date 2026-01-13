@@ -9,7 +9,8 @@ export function AdminPage({ onBack }: { onBack: () => void }) {
     projects, setProjects,
     profileInfo, setProfileInfo,
     goals2026, setGoals2026,
-    saveData, exportData, importData, resetToDefault
+    saveData, exportData, importData, resetToDefault,
+    isLoading, isSaving, useSupabase, lastSaved
   } = useData();
 
   const [activeTab, setActiveTab] = useState<TabType>('profile');
@@ -23,9 +24,13 @@ export function AdminPage({ onBack }: { onBack: () => void }) {
     setTimeout(() => setMessage(null), 3000);
   };
 
-  const handleSave = () => {
-    saveData();
-    showMessage('success', 'Data saved successfully!');
+  const handleSave = async () => {
+    try {
+      await saveData();
+      showMessage('success', useSupabase ? 'Saved to cloud!' : 'Saved to local storage!');
+    } catch {
+      showMessage('error', 'Failed to save data');
+    }
   };
 
   const handleExport = () => {
@@ -56,9 +61,9 @@ export function AdminPage({ onBack }: { onBack: () => void }) {
     reader.readAsText(file);
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
     if (confirm('Are you sure? This will reset all data to defaults.')) {
-      resetToDefault();
+      await resetToDefault();
       showMessage('success', 'Data reset to defaults');
     }
   };
@@ -111,6 +116,16 @@ export function AdminPage({ onBack }: { onBack: () => void }) {
 
   return (
     <div className="min-h-screen bg-military-950 text-white">
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div className="fixed inset-0 z-50 bg-military-950/90 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-4xl mb-4 animate-pulse">⏳</div>
+            <p className="mono-font text-military-500">Loading data...</p>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-military-900/95 backdrop-blur border-b border-military-700">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -122,13 +137,31 @@ export function AdminPage({ onBack }: { onBack: () => void }) {
               ← Back
             </button>
             <h1 className="military-font text-xl text-military-500">ADMIN PANEL</h1>
+            {/* Storage Status Indicator */}
+            <div className={`px-2 py-1 rounded text-xs mono-font ${
+              useSupabase ? 'bg-green-600/30 text-green-400 border border-green-600' : 'bg-yellow-600/30 text-yellow-400 border border-yellow-600'
+            }`}>
+              {useSupabase ? '☁️ Cloud' : '💾 Local'}
+            </div>
           </div>
-          <button
-            onClick={handleSave}
-            className="px-4 py-2 bg-military-500 text-military-950 rounded font-bold hover:bg-military-400 transition"
-          >
-            💾 Save All
-          </button>
+          <div className="flex items-center gap-3">
+            {lastSaved && (
+              <span className="mono-font text-xs text-military-500">
+                Last saved: {lastSaved.toLocaleTimeString()}
+              </span>
+            )}
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className={`px-4 py-2 rounded font-bold transition ${
+                isSaving
+                  ? 'bg-military-600 text-military-400 cursor-not-allowed'
+                  : 'bg-military-500 text-military-950 hover:bg-military-400'
+              }`}
+            >
+              {isSaving ? '⏳ Saving...' : '💾 Save All'}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -509,12 +542,29 @@ export function AdminPage({ onBack }: { onBack: () => void }) {
               </button>
             </div>
 
-            <div className="bg-military-800 border border-military-600 rounded-lg p-4">
-              <h3 className="font-bold text-military-400 mb-2">ℹ️ Storage Info</h3>
-              <p className="text-sm text-military-500">
-                Data is stored in browser localStorage.<br />
-                Export regularly for backup.
-              </p>
+            <div className={`border rounded-lg p-4 ${
+              useSupabase
+                ? 'bg-green-900/20 border-green-700'
+                : 'bg-yellow-900/20 border-yellow-700'
+            }`}>
+              <h3 className="font-bold mb-2" style={{ color: useSupabase ? '#4ade80' : '#facc15' }}>
+                {useSupabase ? '☁️ Cloud Storage Active' : '💾 Local Storage Only'}
+              </h3>
+              {useSupabase ? (
+                <div className="text-sm text-military-400 space-y-1">
+                  <p>✅ Connected to Supabase cloud database</p>
+                  <p>✅ Changes sync across all devices</p>
+                  <p>✅ Data persists for all visitors</p>
+                </div>
+              ) : (
+                <div className="text-sm text-military-400 space-y-1">
+                  <p>⚠️ Using browser localStorage only</p>
+                  <p>⚠️ Data only persists in this browser</p>
+                  <p className="text-yellow-400 mt-2">
+                    To enable cloud storage, add Supabase credentials to .env file
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
