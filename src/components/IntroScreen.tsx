@@ -223,7 +223,7 @@ interface IntroScreenProps {
   onEnter: () => void;
 }
 
-export function IntroScreen({ onEnter }: IntroScreenProps) {
+export default function IntroScreen({ onEnter }: IntroScreenProps) {
   const [loadProgress, setLoadProgress] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
   const [showButton, setShowButton] = useState(false);

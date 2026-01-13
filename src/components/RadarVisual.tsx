@@ -39,15 +39,19 @@ export function RadarVisual({ icon, iconImage }: RadarVisualProps) {
       {/* Center icon */}
       <div className="relative z-10">
         {iconImage ? (
-          <img
-            src={iconImage}
-            alt="Project Logo"
-            className="w-24 h-24 object-contain drop-shadow-lg"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-              e.currentTarget.nextElementSibling?.classList.remove('hidden');
-            }}
-          />
+          <picture>
+            <source srcSet={iconImage.replace('.png', '.webp')} type="image/webp" />
+            <img
+              src={iconImage}
+              alt="Project Logo"
+              className="w-24 h-24 object-contain drop-shadow-lg"
+              loading="lazy"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+              }}
+            />
+          </picture>
         ) : null}
         <span className={`text-7xl ${iconImage ? 'hidden' : ''}`}>{icon}</span>
       </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { ProjectSection } from './components/ProjectSection';
@@ -6,14 +6,28 @@ import { TimelineSection } from './components/TimelineSection';
 import { Goals2026Section } from './components/Goals2026Section';
 import { MovingTank } from './components/Tank';
 import { TrackLine } from './components/TrackLine';
-import { IntroScreen } from './components/IntroScreen';
-import { AdminPage } from './pages/AdminPage';
-import { AiChat } from './components/AiChat';
+// Lazy load heavy components
+const IntroScreen = lazy(() => import('./components/IntroScreen'));
+const AdminPage = lazy(() => import('./pages/AdminPage'));
+const AiChat = lazy(() => import('./components/AiChat'));
 import { DataProvider, useData } from './context/DataContext';
 import { useHorizontalScroll } from './hooks/useHorizontalScroll';
 
 // Admin password from environment variable (default: 'tank2025')
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'tank2025';
+
+// Loading fallback component for Suspense
+const LoadingFallback = ({ message = 'Loading...' }: { message?: string }) => (
+  <div className="fixed inset-0 z-50 bg-military-950 flex items-center justify-center">
+    <div className="text-center">
+      <div className="text-4xl mb-4 animate-pulse">⏳</div>
+      <p className="mono-font text-military-500">{message}</p>
+      <div className="w-64 h-2 bg-military-900 border border-military-700 mt-4 overflow-hidden">
+        <div className="h-full bg-military-500 animate-pulse" style={{ width: '60%' }} />
+      </div>
+    </div>
+  </div>
+);
 
 function Portfolio() {
   const [showIntro, setShowIntro] = useState(true);
@@ -49,12 +63,20 @@ function Portfolio() {
 
   // Show admin page
   if (showAdmin) {
-    return <AdminPage onBack={() => setShowAdmin(false)} />;
+    return (
+      <Suspense fallback={<LoadingFallback message="Loading Admin Panel..." />}>
+        <AdminPage onBack={() => setShowAdmin(false)} />
+      </Suspense>
+    );
   }
 
   // Show intro screen first
   if (showIntro) {
-    return <IntroScreen onEnter={() => setShowIntro(false)} />;
+    return (
+      <Suspense fallback={<LoadingFallback message="Initializing Mission..." />}>
+        <IntroScreen onEnter={() => setShowIntro(false)} />
+      </Suspense>
+    );
   }
 
   return (
@@ -84,7 +106,9 @@ function Portfolio() {
       </button>
 
       {/* AI Chat Modal */}
-      <AiChat isOpen={showChat} onClose={() => setShowChat(false)} />
+      <Suspense fallback={null}>
+        <AiChat isOpen={showChat} onClose={() => setShowChat(false)} />
+      </Suspense>
 
       {/* Password Modal */}
       {showPasswordModal && (

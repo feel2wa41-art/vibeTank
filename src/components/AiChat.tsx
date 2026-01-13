@@ -6,7 +6,7 @@ interface AiChatProps {
   onClose: () => void;
 }
 
-export function AiChat({ isOpen, onClose }: AiChatProps) {
+export default function AiChat({ isOpen, onClose }: AiChatProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
