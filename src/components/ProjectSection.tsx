@@ -153,7 +153,7 @@ export function ProjectSection({ project }: ProjectSectionProps) {
             )}
 
             {/* Outputs / Deliverables */}
-            {project.outputs && project.outputs.length > 0 && (
+            {project.outputs && Array.isArray(project.outputs) && project.outputs.length > 0 && (
               <div className="mb-8">
                 <h4 className="military-font text-lg text-military-500 mb-6">🚀 DELIVERABLES</h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">

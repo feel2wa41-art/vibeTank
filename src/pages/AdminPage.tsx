@@ -4,7 +4,7 @@ import type { Project } from '../data/projects';
 
 type TabType = 'profile' | 'projects' | 'goals' | 'backup' | 'guide';
 
-export function AdminPage({ onBack }: { onBack: () => void }) {
+export default function AdminPage({ onBack }: { onBack: () => void }) {
   const {
     projects, setProjects,
     profileInfo, setProfileInfo,
@@ -343,6 +343,288 @@ export function AdminPage({ onBack }: { onBack: () => void }) {
                         className="w-full px-2 py-1 bg-military-800 border border-military-600 rounded text-white text-sm"
                       />
                     </div>
+
+                    {/* Project Details Section */}
+                    <div className="border-t border-military-700 pt-4 mt-4">
+                      <h4 className="font-bold text-military-400 mb-3">📋 Project Details</h4>
+
+                      {/* Overview */}
+                      <div className="mb-4">
+                        <label className="block mono-font text-xs text-military-400 mb-1">Overview</label>
+                        <textarea
+                          value={editingProject.details?.overview || ''}
+                          onChange={e => setEditingProject({
+                            ...editingProject,
+                            details: { ...editingProject.details, overview: e.target.value }
+                          })}
+                          rows={3}
+                          placeholder="Project overview and context..."
+                          className="w-full px-2 py-1 bg-military-800 border border-military-600 rounded text-white text-sm"
+                        />
+                      </div>
+
+                      {/* Responsibilities */}
+                      <div className="mb-4">
+                        <label className="block mono-font text-xs text-military-400 mb-1">Responsibilities</label>
+                        <div className="space-y-2">
+                          {(editingProject.details?.responsibilities || []).map((resp, idx) => (
+                            <div key={idx} className="flex gap-2">
+                              <input
+                                type="text"
+                                value={resp}
+                                onChange={e => {
+                                  const newResponsibilities = [...(editingProject.details?.responsibilities || [])];
+                                  newResponsibilities[idx] = e.target.value;
+                                  setEditingProject({
+                                    ...editingProject,
+                                    details: { ...editingProject.details, responsibilities: newResponsibilities }
+                                  });
+                                }}
+                                placeholder="Add responsibility..."
+                                className="flex-1 px-2 py-1 bg-military-800 border border-military-600 rounded text-white text-sm"
+                              />
+                              <button
+                                onClick={() => {
+                                  const newResponsibilities = (editingProject.details?.responsibilities || []).filter((_, i) => i !== idx);
+                                  setEditingProject({
+                                    ...editingProject,
+                                    details: { ...editingProject.details, responsibilities: newResponsibilities }
+                                  });
+                                }}
+                                className="px-2 py-1 bg-red-600/50 rounded text-sm hover:bg-red-500"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                          <button
+                            onClick={() => {
+                              const newResponsibilities = [...(editingProject.details?.responsibilities || []), ''];
+                              setEditingProject({
+                                ...editingProject,
+                                details: { ...editingProject.details, responsibilities: newResponsibilities }
+                              });
+                            }}
+                            className="px-3 py-1 bg-military-700 rounded text-sm hover:bg-military-600"
+                          >
+                            + Add Responsibility
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Technologies */}
+                      <div className="mb-4">
+                        <label className="block mono-font text-xs text-military-400 mb-1">Technologies</label>
+                        <div className="space-y-2">
+                          {(editingProject.details?.technologies || []).map((tech, idx) => (
+                            <div key={idx} className="flex gap-2">
+                              <input
+                                type="text"
+                                value={tech}
+                                onChange={e => {
+                                  const newTechnologies = [...(editingProject.details?.technologies || [])];
+                                  newTechnologies[idx] = e.target.value;
+                                  setEditingProject({
+                                    ...editingProject,
+                                    details: { ...editingProject.details, technologies: newTechnologies }
+                                  });
+                                }}
+                                placeholder="Add technology..."
+                                className="flex-1 px-2 py-1 bg-military-800 border border-military-600 rounded text-white text-sm"
+                              />
+                              <button
+                                onClick={() => {
+                                  const newTechnologies = (editingProject.details?.technologies || []).filter((_, i) => i !== idx);
+                                  setEditingProject({
+                                    ...editingProject,
+                                    details: { ...editingProject.details, technologies: newTechnologies }
+                                  });
+                                }}
+                                className="px-2 py-1 bg-red-600/50 rounded text-sm hover:bg-red-500"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                          <button
+                            onClick={() => {
+                              const newTechnologies = [...(editingProject.details?.technologies || []), ''];
+                              setEditingProject({
+                                ...editingProject,
+                                details: { ...editingProject.details, technologies: newTechnologies }
+                              });
+                            }}
+                            className="px-3 py-1 bg-military-700 rounded text-sm hover:bg-military-600"
+                          >
+                            + Add Technology
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Achievements */}
+                      <div className="mb-4">
+                        <label className="block mono-font text-xs text-military-400 mb-1">Achievements</label>
+                        <div className="space-y-2">
+                          {(editingProject.details?.achievements || []).map((achievement, idx) => (
+                            <div key={idx} className="flex gap-2">
+                              <input
+                                type="text"
+                                value={achievement}
+                                onChange={e => {
+                                  const newAchievements = [...(editingProject.details?.achievements || [])];
+                                  newAchievements[idx] = e.target.value;
+                                  setEditingProject({
+                                    ...editingProject,
+                                    details: { ...editingProject.details, achievements: newAchievements }
+                                  });
+                                }}
+                                placeholder="Add achievement..."
+                                className="flex-1 px-2 py-1 bg-military-800 border border-military-600 rounded text-white text-sm"
+                              />
+                              <button
+                                onClick={() => {
+                                  const newAchievements = (editingProject.details?.achievements || []).filter((_, i) => i !== idx);
+                                  setEditingProject({
+                                    ...editingProject,
+                                    details: { ...editingProject.details, achievements: newAchievements }
+                                  });
+                                }}
+                                className="px-2 py-1 bg-red-600/50 rounded text-sm hover:bg-red-500"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                          <button
+                            onClick={() => {
+                              const newAchievements = [...(editingProject.details?.achievements || []), ''];
+                              setEditingProject({
+                                ...editingProject,
+                                details: { ...editingProject.details, achievements: newAchievements }
+                              });
+                            }}
+                            className="px-3 py-1 bg-military-700 rounded text-sm hover:bg-military-600"
+                          >
+                            + Add Achievement
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Challenges */}
+                      <div className="mb-4">
+                        <label className="block mono-font text-xs text-military-400 mb-1">Challenges</label>
+                        <div className="space-y-2">
+                          {(editingProject.details?.challenges || []).map((challenge, idx) => (
+                            <div key={idx} className="flex gap-2">
+                              <input
+                                type="text"
+                                value={challenge}
+                                onChange={e => {
+                                  const newChallenges = [...(editingProject.details?.challenges || [])];
+                                  newChallenges[idx] = e.target.value;
+                                  setEditingProject({
+                                    ...editingProject,
+                                    details: { ...editingProject.details, challenges: newChallenges }
+                                  });
+                                }}
+                                placeholder="Add challenge..."
+                                className="flex-1 px-2 py-1 bg-military-800 border border-military-600 rounded text-white text-sm"
+                              />
+                              <button
+                                onClick={() => {
+                                  const newChallenges = (editingProject.details?.challenges || []).filter((_, i) => i !== idx);
+                                  setEditingProject({
+                                    ...editingProject,
+                                    details: { ...editingProject.details, challenges: newChallenges }
+                                  });
+                                }}
+                                className="px-2 py-1 bg-red-600/50 rounded text-sm hover:bg-red-500"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          ))}
+                          <button
+                            onClick={() => {
+                              const newChallenges = [...(editingProject.details?.challenges || []), ''];
+                              setEditingProject({
+                                ...editingProject,
+                                details: { ...editingProject.details, challenges: newChallenges }
+                              });
+                            }}
+                            className="px-3 py-1 bg-military-700 rounded text-sm hover:bg-military-600"
+                          >
+                            + Add Challenge
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Project Outputs Section */}
+                    <div className="border-t border-military-700 pt-4 mt-4">
+                      <h4 className="font-bold text-military-400 mb-3">🔗 Project Outputs</h4>
+
+                      {/* Admin Portal */}
+                      <div className="mb-3">
+                        <label className="block mono-font text-xs text-military-400 mb-1">Admin Portal URL</label>
+                        <input
+                          type="url"
+                          value={!Array.isArray(editingProject.outputs) && editingProject.outputs?.adminPortal || ''}
+                          onChange={e => setEditingProject({
+                            ...editingProject,
+                            outputs: { ...(Array.isArray(editingProject.outputs) ? {} : editingProject.outputs), adminPortal: e.target.value }
+                          })}
+                          placeholder="https://admin.example.com"
+                          className="w-full px-2 py-1 bg-military-800 border border-military-600 rounded text-white text-sm"
+                        />
+                      </div>
+
+                      {/* Web App */}
+                      <div className="mb-3">
+                        <label className="block mono-font text-xs text-military-400 mb-1">Web App URL</label>
+                        <input
+                          type="url"
+                          value={!Array.isArray(editingProject.outputs) && editingProject.outputs?.webApp || ''}
+                          onChange={e => setEditingProject({
+                            ...editingProject,
+                            outputs: { ...(Array.isArray(editingProject.outputs) ? {} : editingProject.outputs), webApp: e.target.value }
+                          })}
+                          placeholder="https://app.example.com"
+                          className="w-full px-2 py-1 bg-military-800 border border-military-600 rounded text-white text-sm"
+                        />
+                      </div>
+
+                      {/* iOS App */}
+                      <div className="mb-3">
+                        <label className="block mono-font text-xs text-military-400 mb-1">iOS App URL</label>
+                        <input
+                          type="url"
+                          value={!Array.isArray(editingProject.outputs) && editingProject.outputs?.ios || ''}
+                          onChange={e => setEditingProject({
+                            ...editingProject,
+                            outputs: { ...(Array.isArray(editingProject.outputs) ? {} : editingProject.outputs), ios: e.target.value }
+                          })}
+                          placeholder="https://apps.apple.com/..."
+                          className="w-full px-2 py-1 bg-military-800 border border-military-600 rounded text-white text-sm"
+                        />
+                      </div>
+
+                      {/* Android App */}
+                      <div className="mb-3">
+                        <label className="block mono-font text-xs text-military-400 mb-1">Android App URL</label>
+                        <input
+                          type="url"
+                          value={!Array.isArray(editingProject.outputs) && editingProject.outputs?.android || ''}
+                          onChange={e => setEditingProject({
+                            ...editingProject,
+                            outputs: { ...(Array.isArray(editingProject.outputs) ? {} : editingProject.outputs), android: e.target.value }
+                          })}
+                          placeholder="https://play.google.com/..."
+                          className="w-full px-2 py-1 bg-military-800 border border-military-600 rounded text-white text-sm"
+                        />
+                      </div>
+                    </div>
+
                     <div className="flex gap-2">
                       <button
                         onClick={() => {

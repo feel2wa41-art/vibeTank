@@ -94,6 +94,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   // Load from Supabase
   const loadFromSupabase = useCallback(async () => {
+    if (!supabase) return false;
+
     try {
       const { data, error } = await supabase
         .from(SUPABASE_TABLE)
@@ -157,6 +159,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   // Save to Supabase
   const saveToSupabase = useCallback(async (data: { projects: Project[]; profileInfo: ProfileInfo; goals2026: Goal[] }) => {
+    if (!supabase) return false;
+
     try {
       const { error } = await supabase
         .from(SUPABASE_TABLE)
@@ -234,7 +238,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setGoals2026(defaultGoals2026);
     localStorage.removeItem(STORAGE_KEY);
 
-    if (useSupabase) {
+    if (useSupabase && supabase) {
       await supabase.from(SUPABASE_TABLE).delete().eq('id', 'main');
     }
   }, [useSupabase]);

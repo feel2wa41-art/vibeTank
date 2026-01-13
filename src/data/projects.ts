@@ -25,7 +25,12 @@ export interface Project {
     description: string;
     url: string;
     icon: 'web' | 'admin' | 'app' | 'ios' | 'android' | 'landing';
-  }[];
+  }[] | {
+    adminPortal?: string;
+    webApp?: string;
+    ios?: string;
+    android?: string;
+  };
 }
 
 export const projects: Project[] = [
