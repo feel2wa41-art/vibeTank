@@ -23,7 +23,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
     const result = streamText({
-      model: google('gemini-1.5-flash-latest'),
+      model: google('gemini-pro'),
       system: `You are TANK AI, a helpful assistant for the vibeTank portfolio website.
 You speak in a friendly, slightly military-themed tone.
 Keep responses concise and helpful.

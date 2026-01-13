@@ -39,7 +39,7 @@ export function AiChat({ isOpen, onClose }: AiChatProps) {
             </div>
             <div>
               <h2 className="military-font text-lg text-military-300">TANK AI</h2>
-              <p className="text-xs text-military-500 mono-font">Gemini 1.5 Flash</p>
+              <p className="text-xs text-military-500 mono-font">Gemini Pro</p>
             </div>
           </div>
           <button
