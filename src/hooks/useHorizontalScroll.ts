@@ -99,6 +99,20 @@ export function useHorizontalScroll() {
     }
   }, [updateProgress, findScrollableParent]);
 
+  // Initialize state when component mounts
+  useEffect(() => {
+    const container = containerRef.current;
+    if (container) {
+      // Reset scroll position to start
+      container.scrollLeft = 0;
+      // Initialize state
+      setScrollX(0);
+      setProgress(0);
+      setTankX(50);
+      setCurrentPage(0);
+    }
+  }, []); // Only run on mount
+
   useEffect(() => {
     const container = containerRef.current;
 
