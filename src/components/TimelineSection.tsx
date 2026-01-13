@@ -125,6 +125,27 @@ export function TimelineSection() {
         <div className="military-font text-2xl text-military-500 mb-2">⬢ TANK</div>
         <p className="mono-font text-xs text-military-700">{profileInfo.footer}</p>
       </div>
+
+      {/* Next Section Indicator - 2026 Goals */}
+      <div className="absolute right-8 top-1/2 -translate-y-1/2 flex flex-col items-center gap-4">
+        <div className="w-px h-24 bg-gradient-to-b from-transparent via-military-500 to-transparent"/>
+        <div className="flex items-center gap-2 text-military-500/80 mono-font text-xs animate-pulse">
+          <span
+            className="rotate-90 origin-center whitespace-nowrap"
+            style={{
+              background: 'linear-gradient(90deg, #00f5ff, #ff00ff)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}
+          >
+            2026 GOALS
+          </span>
+        </div>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-cyan-400 animate-bounce">
+          <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+        </svg>
+        <div className="w-px h-24 bg-gradient-to-b from-transparent via-purple-500 to-transparent"/>
+      </div>
     </section>
   );
 }

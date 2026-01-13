@@ -3,6 +3,7 @@ import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { ProjectSection } from './components/ProjectSection';
 import { TimelineSection } from './components/TimelineSection';
+import { Goals2026Section } from './components/Goals2026Section';
 import { MovingTank } from './components/Tank';
 import { TrackLine } from './components/TrackLine';
 import { IntroScreen } from './components/IntroScreen';
@@ -12,7 +13,7 @@ import { projects } from './data/projects';
 function App() {
   const [showIntro, setShowIntro] = useState(true);
   const { containerRef, progress, tankX, currentPage, scrollNext, scrollPrev } = useHorizontalScroll();
-  const totalPages = projects.length + 2; // Hero + Projects + Timeline
+  const totalPages = projects.length + 3; // Hero + Projects + Timeline + Goals2026
 
   // Show intro screen first
   if (showIntro) {
@@ -66,6 +67,9 @@ function App() {
         ))}
 
         <TimelineSection />
+
+        {/* 2026 Goals - Final Section */}
+        <Goals2026Section />
       </div>
     </div>
   );
