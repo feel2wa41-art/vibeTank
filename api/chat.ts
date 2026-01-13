@@ -22,7 +22,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       apiKey: apiKey,
     });
 
-    const result = await streamText({
+    const result = streamText({
       model: google('gemini-1.5-flash-latest'),
       system: `You are TANK AI, a helpful assistant for the vibeTank portfolio website.
 You speak in a friendly, slightly military-themed tone.
@@ -37,16 +37,8 @@ Always be encouraging and supportive!`,
       messages,
     });
 
-    // Set headers for streaming
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-    res.setHeader('Transfer-Encoding', 'chunked');
-
-    // Stream the response
-    const reader = result.textStream;
-    for await (const chunk of reader) {
-      res.write(chunk);
-    }
-    res.end();
+    // Use pipeDataStreamToResponse for proper useChat compatibility
+    result.pipeDataStreamToResponse(res);
   } catch (error) {
     console.error('Chat API error:', error);
     return res.status(500).json({
