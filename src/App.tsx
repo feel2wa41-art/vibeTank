@@ -37,8 +37,14 @@ function Portfolio() {
   const [password, setPassword] = useState('');
   const [passwordError, setPasswordError] = useState(false);
   const { projects } = useData();
-  const { containerRef, progress, tankX, currentPage, scrollNext, scrollPrev } = useHorizontalScroll();
+  const { containerRef, progress, tankX, currentPage, scrollNext, scrollPrev, resetScroll } = useHorizontalScroll();
   const totalPages = projects.length + 3; // Hero + Projects + Timeline + Goals2026
+
+  // Handle going back to intro - reset scroll position
+  const handleHomeClick = () => {
+    resetScroll();
+    setShowIntro(true);
+  };
 
   // Handle password submission
   const handlePasswordSubmit = (e: React.FormEvent) => {
@@ -81,7 +87,7 @@ function Portfolio() {
 
   return (
     <div className="h-screen overflow-hidden bg-military-950">
-      <Navbar progress={progress} onHomeClick={() => setShowIntro(true)} />
+      <Navbar progress={progress} onHomeClick={handleHomeClick} />
       <MovingTank x={tankX} />
       <TrackLine />
 

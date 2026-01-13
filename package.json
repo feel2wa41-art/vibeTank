@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "22": "^0.0.0",
     "@ai-sdk/google": "^0.0.55",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",

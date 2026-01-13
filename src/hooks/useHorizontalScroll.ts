@@ -56,6 +56,17 @@ export function useHorizontalScroll() {
     scrollToPage(currentPage - 1);
   }, [currentPage, scrollToPage]);
 
+  // Reset scroll to beginning
+  const resetScroll = useCallback(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollLeft = 0;
+    }
+    setScrollX(0);
+    setProgress(0);
+    setTankX(50);
+    setCurrentPage(0);
+  }, []);
+
   // Helper function to find scrollable parent element
   const findScrollableParent = useCallback((element: HTMLElement | null): HTMLElement | null => {
     while (element && element !== containerRef.current) {
@@ -103,13 +114,26 @@ export function useHorizontalScroll() {
   useEffect(() => {
     const container = containerRef.current;
     if (container) {
-      // Reset scroll position to start
+      // Force reset scroll position to start
       container.scrollLeft = 0;
       // Initialize state
       setScrollX(0);
       setProgress(0);
       setTankX(50);
       setCurrentPage(0);
+
+      // Double-check after a small delay to ensure scroll position is reset
+      const timeoutId = setTimeout(() => {
+        if (container.scrollLeft !== 0) {
+          container.scrollLeft = 0;
+          setScrollX(0);
+          setProgress(0);
+          setTankX(50);
+          setCurrentPage(0);
+        }
+      }, 100);
+
+      return () => clearTimeout(timeoutId);
     }
   }, []); // Only run on mount
 
@@ -126,5 +150,5 @@ export function useHorizontalScroll() {
     }
   }, [handleWheel, updateProgress]);
 
-  return { containerRef, scrollX, progress, tankX, currentPage, scrollNext, scrollPrev, scrollToPage };
+  return { containerRef, scrollX, progress, tankX, currentPage, scrollNext, scrollPrev, scrollToPage, resetScroll };
 }

@@ -18,7 +18,12 @@ export default defineConfig({
     chunkSizeWarningLimit: 600,
   },
   optimizeDeps: {
-    include: ['react', 'react-dom'],
-    exclude: ['@react-three/fiber', '@react-three/drei'],
+    include: [
+      'react',
+      'react-dom',
+      'use-sync-external-store',
+      'use-sync-external-store/shim',
+      'use-sync-external-store/shim/with-selector',
+    ],
   },
 })
