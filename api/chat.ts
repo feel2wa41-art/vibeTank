@@ -1,21 +1,26 @@
-import { StreamingTextResponse, streamText } from 'ai';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { streamText } from 'ai';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 
-export const config = {
-  runtime: 'edge',
-};
-
-const google = createGoogleGenerativeAI({
-  apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-});
-
-export default async function handler(req: Request) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Only allow POST
   if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 });
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // Check API key
+  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  if (!apiKey) {
+    console.error('GOOGLE_GENERATIVE_AI_API_KEY is not set');
+    return res.status(500).json({ error: 'API key not configured' });
   }
 
   try {
-    const { messages } = await req.json();
+    const { messages } = req.body;
+
+    const google = createGoogleGenerativeAI({
+      apiKey: apiKey,
+    });
 
     const result = await streamText({
       model: google('gemini-1.5-flash'),
@@ -32,12 +37,21 @@ Always be encouraging and supportive!`,
       messages,
     });
 
-    return result.toDataStreamResponse();
+    // Set headers for streaming
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Transfer-Encoding', 'chunked');
+
+    // Stream the response
+    const reader = result.textStream;
+    for await (const chunk of reader) {
+      res.write(chunk);
+    }
+    res.end();
   } catch (error) {
     console.error('Chat API error:', error);
-    return new Response(
-      JSON.stringify({ error: 'Failed to process request' }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    return res.status(500).json({
+      error: 'Failed to process request',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 }
