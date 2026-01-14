@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { useData, type Goal } from '../context/DataContext';
 import type { Project } from '../data/projects';
 
-type TabType = 'profile' | 'projects' | 'goals' | 'backup' | 'guide' | 'settings';
+type TabType = 'profile' | 'projects' | 'goals' | 'scripts' | 'backup' | 'guide' | 'settings';
 
 const CUSTOM_PASSWORD_KEY = 'vibetank_admin_password';
 
@@ -145,6 +145,7 @@ export default function AdminPage({ onBack }: { onBack: () => void }) {
     { id: 'profile', label: 'Profile', icon: '👤' },
     { id: 'projects', label: 'Projects', icon: '📁' },
     { id: 'goals', label: '2026 Goals', icon: '🎯' },
+    { id: 'scripts', label: 'Scripts', icon: '📜' },
     { id: 'backup', label: 'Backup', icon: '💾' },
     { id: 'guide', label: 'Guide', icon: '📚' },
     { id: 'settings', label: 'Settings', icon: '⚙️' }
@@ -873,6 +874,170 @@ export default function AdminPage({ onBack }: { onBack: () => void }) {
                 )}
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Scripts Tab - Presentation Scripts Viewer */}
+        {activeTab === 'scripts' && (
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-amber-900/30 to-orange-900/30 border border-amber-500/30 rounded-xl p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-full bg-amber-500/20 border-2 border-amber-500/50 flex items-center justify-center">
+                    <span className="text-3xl">📜</span>
+                  </div>
+                  <div>
+                    <h2 className="military-font text-2xl text-amber-400">PRESENTATION SCRIPTS</h2>
+                    <p className="mono-font text-sm text-amber-500/70">Review all scripts before your presentation</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="mono-font text-xs text-military-500">Total Projects</div>
+                  <div className="military-font text-3xl text-amber-400">{projects.length}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Scripts List */}
+            <div className="space-y-6">
+              {projects.map((project, index) => (
+                <div
+                  key={project.id}
+                  className="bg-military-900 border border-military-700 rounded-xl overflow-hidden"
+                >
+                  {/* Project Header */}
+                  <div
+                    className="px-6 py-4 border-b border-military-700"
+                    style={{ background: `linear-gradient(90deg, ${project.color}20, transparent)` }}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div
+                        className="w-12 h-12 rounded-full flex items-center justify-center text-2xl"
+                        style={{ backgroundColor: `${project.color}30`, border: `2px solid ${project.color}50` }}
+                      >
+                        {project.icon}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3">
+                          <span className="mono-font text-xs text-military-500">MISSION {String(index + 1).padStart(2, '0')}</span>
+                          <span className="mono-font text-xs px-2 py-0.5 rounded" style={{ backgroundColor: `${project.color}30`, color: project.color }}>
+                            {project.period}
+                          </span>
+                        </div>
+                        <h3 className="military-font text-xl" style={{ color: project.color }}>{project.name}</h3>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Script Content */}
+                  <div className="p-6">
+                    {project.script ? (
+                      <div className="relative">
+                        {/* Left accent bar */}
+                        <div
+                          className="absolute left-0 top-0 bottom-0 w-1 rounded-full"
+                          style={{ backgroundColor: project.color }}
+                        />
+
+                        {/* Script text */}
+                        <div className="pl-6 space-y-4">
+                          {project.script.split('\n\n').map((paragraph, idx) => (
+                            <div key={idx}>
+                              {paragraph.includes('•') ? (
+                                <div className="space-y-1">
+                                  {paragraph.split('\n').map((line, lineIdx) => (
+                                    <p
+                                      key={lineIdx}
+                                      className={`text-military-200 leading-relaxed ${
+                                        line.startsWith('•') ? 'pl-4' : ''
+                                      }`}
+                                      style={{ color: line.startsWith('•') ? project.color : undefined }}
+                                    >
+                                      {line}
+                                    </p>
+                                  ))}
+                                </div>
+                              ) : (
+                                <p className="text-military-200 leading-relaxed text-lg">
+                                  {paragraph}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-military-500">
+                        <span className="text-4xl mb-2 block">📝</span>
+                        <p className="mono-font text-sm">No script added yet</p>
+                        <p className="text-xs mt-1">Edit this project to add a presentation script</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="px-6 py-3 bg-military-800/50 border-t border-military-700 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${project.script ? 'bg-green-500' : 'bg-yellow-500'}`} />
+                      <span className="mono-font text-xs text-military-500">
+                        {project.script ? 'Script Ready' : 'Script Missing'}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setEditingProject(project);
+                        setActiveTab('projects');
+                      }}
+                      className="mono-font text-xs text-amber-400 hover:text-amber-300 transition"
+                    >
+                      Edit Script →
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Intro & Closing Scripts */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Intro Script */}
+              <div className="bg-gradient-to-br from-cyan-900/30 to-military-900 border border-cyan-500/30 rounded-xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-2xl">🎬</span>
+                  <h3 className="military-font text-lg text-cyan-400">INTRO SCRIPT</h3>
+                </div>
+                <div className="bg-military-800/50 rounded-lg p-4 border border-cyan-500/20">
+                  <p className="text-military-200 leading-relaxed">
+                    "Welcome to TANK Portfolio 2025.
+                  </p>
+                  <p className="text-military-200 leading-relaxed mt-2">
+                    I'm a Project Manager at GDC, and today I'll walk you through my key projects and achievements this year.
+                  </p>
+                  <p className="text-military-200 leading-relaxed mt-2">
+                    Let's begin the mission."
+                  </p>
+                </div>
+              </div>
+
+              {/* Closing Script */}
+              <div className="bg-gradient-to-br from-green-900/30 to-military-900 border border-green-500/30 rounded-xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-2xl">🎯</span>
+                  <h3 className="military-font text-lg text-green-400">CLOSING SCRIPT</h3>
+                </div>
+                <div className="bg-military-800/50 rounded-lg p-4 border border-green-500/20">
+                  <p className="text-military-200 leading-relaxed">
+                    "Thank you for joining me on this mission briefing.
+                  </p>
+                  <p className="text-military-200 leading-relaxed mt-2">
+                    2025 was a year of innovation, AI integration, and successful delivery.
+                  </p>
+                  <p className="text-military-200 leading-relaxed mt-2">
+                    I'm TANK, and all systems are operational. Thank you."
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
