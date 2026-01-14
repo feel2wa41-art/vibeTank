@@ -112,14 +112,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
         const content = data.content;
         // Merge with defaults to ensure all required fields exist and fix old data
         if (content.projects) {
-          // Fix image paths: ALWAYS use default iconImage paths (ignore stored paths)
+          // Fix image paths: ALWAYS use default iconImage and aiImage paths (ignore stored paths)
           const fixedProjects = content.projects.map((p: Project) => {
             // Find matching default project by id
             const defaultProject = defaultProjects.find(dp => dp.id === p.id);
             return {
               ...p,
-              // ALWAYS use default iconImage, never use stored one
-              iconImage: defaultProject?.iconImage
+              // ALWAYS use default iconImage and aiImage, never use stored ones
+              iconImage: defaultProject?.iconImage,
+              aiImage: defaultProject?.aiImage
             };
           });
           setProjects(fixedProjects);
@@ -141,15 +142,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const data = JSON.parse(stored);
-        // Fix image paths: ALWAYS use default iconImage paths (ignore stored paths)
+        // Fix image paths: ALWAYS use default iconImage and aiImage paths (ignore stored paths)
         if (data.projects) {
           const fixedProjects = data.projects.map((p: Project) => {
             // Find matching default project by id
             const defaultProject = defaultProjects.find(dp => dp.id === p.id);
             return {
               ...p,
-              // ALWAYS use default iconImage, never use stored one
-              iconImage: defaultProject?.iconImage
+              // ALWAYS use default iconImage and aiImage, never use stored ones
+              iconImage: defaultProject?.iconImage,
+              aiImage: defaultProject?.aiImage
             };
           });
           setProjects(fixedProjects);
