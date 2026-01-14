@@ -307,6 +307,29 @@ export default function AdminPage({ onBack }: { onBack: () => void }) {
                           Put image files in public/logos/ folder. Path example: /logos/my-logo.png
                         </p>
                       </div>
+                      <div className="col-span-2">
+                        <label className="block mono-font text-xs text-military-400 mb-1">AI Generated Image Path (optional)</label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={editingProject.aiImage || ''}
+                            onChange={e => setEditingProject({ ...editingProject, aiImage: e.target.value || undefined })}
+                            placeholder="/ai-images/project-ai.png"
+                            className="flex-1 px-2 py-1 bg-military-800 border border-military-600 rounded text-white text-sm"
+                          />
+                          {editingProject.aiImage && (
+                            <img
+                              src={editingProject.aiImage}
+                              alt="AI Preview"
+                              className="w-8 h-8 object-contain bg-military-700 rounded"
+                              onError={(e) => e.currentTarget.style.display = 'none'}
+                            />
+                          )}
+                        </div>
+                        <p className="text-xs text-military-500 mt-1">
+                          AI TANK button will appear when this is set. Path example: /ai-images/my-ai-image.png
+                        </p>
+                      </div>
                       <div>
                         <label className="block mono-font text-xs text-military-400 mb-1">Period</label>
                         <input

@@ -9,6 +9,7 @@ export interface Project {
   features?: string[];
   icon: string;
   iconImage?: string; // Optional image path for logo (in public folder)
+  aiImage?: string; // Optional AI-generated image path (in public folder)
   color: string;
   startMonth: number; // 0-indexed (Jan = 0)
   endMonth: number;
@@ -48,6 +49,7 @@ export const projects: Project[] = [
     ],
     icon: "🎯",
     iconImage: "/logos/kt-skylife.png",
+    aiImage: "/infograpic/SKYLILFE SCIS PROJECT.png",
     color: "#8bc34a",
     startMonth: 0,
     endMonth: 6,
@@ -92,6 +94,7 @@ export const projects: Project[] = [
     features: ["Attendance", "E-Approval", "KPI", "Reports", "Expenses", "Calendar"],
     icon: "⚡",
     iconImage: "/logos/reko-hr.png",
+    aiImage: "/infograpic/REKO.png",
     color: "#7cb342",
     startMonth: 7,
     endMonth: 11,
@@ -168,6 +171,7 @@ export const projects: Project[] = [
       { value: "∞", label: "Updates" }
     ],
     icon: "🛡️",
+    aiImage: "/infograpic/xplatform dll protector.png",
     color: "#689f38",
     startMonth: 0,
     endMonth: 11,
@@ -208,6 +212,7 @@ export const projects: Project[] = [
       { value: "Q4", label: "Timeline" }
     ],
     icon: "🔒",
+    aiImage: "/infograpic/Security.png",
     color: "#aed581",
     startMonth: 8,
     endMonth: 11,

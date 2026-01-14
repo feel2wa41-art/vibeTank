@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import type { Project } from '../data/projects';
 import { RadarVisual } from './RadarVisual';
+import { AiTankButton } from './AiTankButton';
 
 interface ProjectSectionProps {
   project: Project;
@@ -117,6 +118,13 @@ export function ProjectSection({ project }: ProjectSectionProps) {
                   ))}
                 </div>
               ) : null}
+
+              {/* AI Tank Button */}
+              {project.aiImage && (
+                <div className="mt-6">
+                  <AiTankButton aiImage={project.aiImage} projectName={project.name} />
+                </div>
+              )}
 
               {/* View Details Button */}
               {project.details && (
