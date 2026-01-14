@@ -13,25 +13,13 @@ export function ScriptViewer({ script, projectName, missionNumber }: ScriptViewe
 
   return (
     <>
-      {/* Script Button */}
+      {/* Script Button - tiny & discrete */}
       <button
         onClick={() => setShowModal(true)}
-        className="group relative px-4 py-2 bg-gradient-to-r from-amber-900/80 to-orange-900/80 border-2 border-amber-500/50 rounded-lg hover:border-amber-400 hover:from-amber-800/80 hover:to-orange-800/80 transition-all duration-300 overflow-hidden"
+        className="w-7 h-7 rounded-full bg-military-800/60 border border-military-600/50 hover:bg-amber-900/50 hover:border-amber-500/50 transition-all duration-300 flex items-center justify-center opacity-60 hover:opacity-100"
+        title="View Script"
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-        <div className="relative flex items-center gap-2">
-          <span className="text-lg">📜</span>
-          <span className="military-font text-amber-400 text-xs tracking-wider group-hover:text-amber-300">
-            SCRIPT
-          </span>
-        </div>
-
-        {/* Corner decorations */}
-        <div className="absolute top-0.5 left-0.5 w-1.5 h-1.5 border-l border-t border-amber-500/50" />
-        <div className="absolute top-0.5 right-0.5 w-1.5 h-1.5 border-r border-t border-amber-500/50" />
-        <div className="absolute bottom-0.5 left-0.5 w-1.5 h-1.5 border-l border-b border-amber-500/50" />
-        <div className="absolute bottom-0.5 right-0.5 w-1.5 h-1.5 border-r border-b border-amber-500/50" />
+        <span className="text-xs">📜</span>
       </button>
 
       {/* Script Modal */}
