@@ -2,7 +2,9 @@ import { useState, useRef } from 'react';
 import { useData, type Goal } from '../context/DataContext';
 import type { Project } from '../data/projects';
 
-type TabType = 'profile' | 'projects' | 'goals' | 'backup' | 'guide';
+type TabType = 'profile' | 'projects' | 'goals' | 'backup' | 'guide' | 'settings';
+
+const CUSTOM_PASSWORD_KEY = 'vibetank_admin_password';
 
 export default function AdminPage({ onBack }: { onBack: () => void }) {
   const {
@@ -107,12 +109,45 @@ export default function AdminPage({ onBack }: { onBack: () => void }) {
     setGoals2026(goals2026.map(g => g.id === id ? { ...g, ...updates } : g));
   };
 
+  // Password state
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const handlePasswordChange = () => {
+    const envPassword = import.meta.env.VITE_ADMIN_PASSWORD || 'tank2025';
+    const storedPassword = localStorage.getItem(CUSTOM_PASSWORD_KEY);
+    const activePassword = storedPassword || envPassword;
+
+    if (currentPassword !== activePassword) {
+      showMessage('error', 'Current password is incorrect');
+      return;
+    }
+
+    if (newPassword.length < 4) {
+      showMessage('error', 'New password must be at least 4 characters');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      showMessage('error', 'Passwords do not match');
+      return;
+    }
+
+    localStorage.setItem(CUSTOM_PASSWORD_KEY, newPassword);
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    showMessage('success', 'Password changed successfully!');
+  };
+
   const tabs: { id: TabType; label: string; icon: string }[] = [
     { id: 'profile', label: 'Profile', icon: '👤' },
     { id: 'projects', label: 'Projects', icon: '📁' },
     { id: 'goals', label: '2026 Goals', icon: '🎯' },
     { id: 'backup', label: 'Backup', icon: '💾' },
-    { id: 'guide', label: 'Guide', icon: '📚' }
+    { id: 'guide', label: 'Guide', icon: '📚' },
+    { id: 'settings', label: 'Settings', icon: '⚙️' }
   ];
 
   return (
@@ -388,6 +423,23 @@ export default function AdminPage({ onBack }: { onBack: () => void }) {
                         onChange={e => setEditingProject({ ...editingProject, tags: e.target.value.split(',').map(t => t.trim()) })}
                         className="w-full px-2 py-1 bg-military-800 border border-military-600 rounded text-white text-sm"
                       />
+                    </div>
+
+                    {/* Presentation Script */}
+                    <div className="border-t border-amber-500/30 pt-4 mt-4">
+                      <label className="block mono-font text-xs text-amber-400 mb-1 flex items-center gap-2">
+                        <span>📜</span> Presentation Script
+                      </label>
+                      <textarea
+                        value={editingProject.script || ''}
+                        onChange={e => setEditingProject({ ...editingProject, script: e.target.value || undefined })}
+                        rows={8}
+                        placeholder="Enter your presentation script for this project..."
+                        className="w-full px-3 py-2 bg-military-800 border border-amber-500/30 rounded-lg text-white text-sm font-mono leading-relaxed"
+                      />
+                      <p className="text-xs text-military-500 mt-1">
+                        This script will appear when you click the 📜 SCRIPT button on the project page.
+                      </p>
                     </div>
 
                     {/* Project Details Section */}
@@ -1151,6 +1203,88 @@ export default function AdminPage({ onBack }: { onBack: () => void }) {
                 <div>
                   <div className="text-military-400 mb-1">Last Updated:</div>
                   <div className="text-white">2025-01-13</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Settings Tab */}
+        {activeTab === 'settings' && (
+          <div className="space-y-6">
+            {/* Password Change Section */}
+            <div className="bg-military-900 border border-military-700 rounded-xl p-6">
+              <h3 className="font-bold text-lg text-amber-400 mb-4 flex items-center gap-2">
+                <span>🔐</span> Change Admin Password
+              </h3>
+              <div className="space-y-4 max-w-md">
+                <div>
+                  <label className="block mono-font text-xs text-military-400 mb-1">Current Password</label>
+                  <input
+                    type="password"
+                    value={currentPassword}
+                    onChange={e => setCurrentPassword(e.target.value)}
+                    placeholder="Enter current password"
+                    className="w-full px-3 py-2 bg-military-800 border border-military-600 rounded-lg text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block mono-font text-xs text-military-400 mb-1">New Password</label>
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={e => setNewPassword(e.target.value)}
+                    placeholder="Enter new password (min 4 chars)"
+                    className="w-full px-3 py-2 bg-military-800 border border-military-600 rounded-lg text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block mono-font text-xs text-military-400 mb-1">Confirm New Password</label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={e => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm new password"
+                    className="w-full px-3 py-2 bg-military-800 border border-military-600 rounded-lg text-white"
+                  />
+                </div>
+                <button
+                  onClick={handlePasswordChange}
+                  className="px-6 py-2 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-lg transition"
+                >
+                  Change Password
+                </button>
+                <p className="text-xs text-military-500 mt-2">
+                  Password is stored locally in your browser. Default password: tank2025
+                </p>
+              </div>
+            </div>
+
+            {/* Info Section */}
+            <div className="bg-military-900 border border-military-700 rounded-xl p-6">
+              <h3 className="font-bold text-lg text-cyan-400 mb-4 flex items-center gap-2">
+                <span>ℹ️</span> System Information
+              </h3>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="bg-military-800 rounded-lg p-4">
+                  <div className="mono-font text-xs text-military-400 mb-1">Storage Mode</div>
+                  <div className={`font-bold ${useSupabase ? 'text-green-400' : 'text-yellow-400'}`}>
+                    {useSupabase ? '☁️ Cloud (Supabase)' : '💾 Local Storage'}
+                  </div>
+                </div>
+                <div className="bg-military-800 rounded-lg p-4">
+                  <div className="mono-font text-xs text-military-400 mb-1">Last Saved</div>
+                  <div className="font-bold text-military-300">
+                    {lastSaved ? lastSaved.toLocaleString() : 'Never'}
+                  </div>
+                </div>
+                <div className="bg-military-800 rounded-lg p-4">
+                  <div className="mono-font text-xs text-military-400 mb-1">Projects Count</div>
+                  <div className="font-bold text-military-300">{projects.length}</div>
+                </div>
+                <div className="bg-military-800 rounded-lg p-4">
+                  <div className="mono-font text-xs text-military-400 mb-1">Goals Count</div>
+                  <div className="font-bold text-military-300">{goals2026.length}</div>
                 </div>
               </div>
             </div>

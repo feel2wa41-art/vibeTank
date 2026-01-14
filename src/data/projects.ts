@@ -10,6 +10,7 @@ export interface Project {
   icon: string;
   iconImage?: string; // Optional image path for logo (in public folder)
   aiImage?: string; // Optional AI-generated image path (in public folder)
+  script?: string; // Presentation script for this project
   color: string;
   startMonth: number; // 0-indexed (Jan = 0)
   endMonth: number;
@@ -50,6 +51,18 @@ export const projects: Project[] = [
     icon: "🎯",
     iconImage: "/logos/kt-skylife.png",
     aiImage: "/infograpic/SKYLILFE SCIS PROJECT.png",
+    script: `Our first mission is the KT Skylife project.
+
+This was a large-scale migration project — converting a legacy system to a modern Vue2 framework.
+
+I led a team of 2 developers over 7 months, and we achieved 100% completion.
+
+Key achievements include:
+• 50% performance improvement over the legacy system
+• 3x faster UI response speed
+• Successful migration with zero downtime
+
+Let me show you what AI TANK generated for this project.`,
     color: "#8bc34a",
     startMonth: 0,
     endMonth: 6,
@@ -95,6 +108,22 @@ export const projects: Project[] = [
     icon: "⚡",
     iconImage: "/logos/reko-hr.png",
     aiImage: "/infograpic/REKO.png",
+    script: `Next is REKO HR System — my most innovative project this year.
+
+This is a complete HR management platform built using AI-assisted development, what we call 'Vibe Coding.'
+
+We delivered 5 products simultaneously:
+• Admin Portal for providers
+• Web Application for customers
+• Landing page
+• iOS and Android mobile apps
+
+The results were impressive:
+• 60% reduction in development time thanks to AI
+• 95% user satisfaction rate
+• 40% faster HR task processing
+
+This project proves that AI can dramatically accelerate software development.`,
     color: "#7cb342",
     startMonth: 7,
     endMonth: 11,
@@ -172,6 +201,19 @@ export const projects: Project[] = [
     ],
     icon: "🛡️",
     aiImage: "/infograpic/xplatform dll protector.png",
+    script: `Mission 3 is MTI xPlatform — our security solution.
+
+This is a DLL Protector that detects and prevents hacking attempts in real-time.
+
+It provides 24/7 protection with continuous updates against new threats.
+
+Key features include:
+• DLL injection prevention
+• Background process monitoring
+• 100% security incident prevention for all clients
+• Minimal system performance impact
+
+Security is not optional — it's essential.`,
     color: "#689f38",
     startMonth: 0,
     endMonth: 11,
@@ -213,6 +255,17 @@ export const projects: Project[] = [
     ],
     icon: "🔒",
     aiImage: "/infograpic/Security.png",
+    script: `Our final mission is the Security Assessment project.
+
+This is a comprehensive IT security audit for KT Skylife infrastructure.
+
+We provide 360-degree coverage, examining:
+• Physical server security
+• Software vulnerabilities
+• Network architecture
+• Access control policies
+
+Our goal is ISMS certification and company-wide security improvement.`,
     color: "#aed581",
     startMonth: 8,
     endMonth: 11,

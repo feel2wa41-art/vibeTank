@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import type { Project } from '../data/projects';
 import { RadarVisual } from './RadarVisual';
 import { AiTankButton } from './AiTankButton';
+import { ScriptViewer } from './ScriptViewer';
 
 interface ProjectSectionProps {
   project: Project;
@@ -119,10 +120,15 @@ export function ProjectSection({ project }: ProjectSectionProps) {
                 </div>
               ) : null}
 
-              {/* AI Tank Button */}
-              {project.aiImage && (
-                <div className="mt-6">
-                  <AiTankButton aiImage={project.aiImage} projectName={project.name} />
+              {/* AI Tank Button & Script Viewer */}
+              {(project.aiImage || project.script) && (
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {project.aiImage && (
+                    <AiTankButton aiImage={project.aiImage} projectName={project.name} />
+                  )}
+                  {project.script && (
+                    <ScriptViewer script={project.script} projectName={project.name} missionNumber={project.id} />
+                  )}
                 </div>
               )}
 

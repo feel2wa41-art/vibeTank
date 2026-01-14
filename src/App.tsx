@@ -13,8 +13,12 @@ const AiChat = lazy(() => import('./components/AiChat'));
 import { DataProvider, useData } from './context/DataContext';
 import { useHorizontalScroll } from './hooks/useHorizontalScroll';
 
-// Admin password from environment variable (default: 'tank2025')
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'tank2025';
+// Admin password - check localStorage first, then environment variable
+const CUSTOM_PASSWORD_KEY = 'vibetank_admin_password';
+const getAdminPassword = () => {
+  const customPassword = localStorage.getItem(CUSTOM_PASSWORD_KEY);
+  return customPassword || import.meta.env.VITE_ADMIN_PASSWORD || 'tank2025';
+};
 
 // Loading fallback component for Suspense
 const LoadingFallback = ({ message = 'Loading...' }: { message?: string }) => (
@@ -130,7 +134,7 @@ function Portfolio() {
   // Handle password submission
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
+    if (password === getAdminPassword()) {
       setShowAdmin(true);
       setShowPasswordModal(false);
       setPassword('');

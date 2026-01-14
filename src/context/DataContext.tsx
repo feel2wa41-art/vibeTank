@@ -118,9 +118,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
             const defaultProject = defaultProjects.find(dp => dp.id === p.id);
             return {
               ...p,
-              // ALWAYS use default iconImage and aiImage, never use stored ones
+              // ALWAYS use default iconImage, aiImage, and script, never use stored ones
               iconImage: defaultProject?.iconImage,
-              aiImage: defaultProject?.aiImage
+              aiImage: defaultProject?.aiImage,
+              script: defaultProject?.script
             };
           });
           setProjects(fixedProjects);
@@ -149,9 +150,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
             const defaultProject = defaultProjects.find(dp => dp.id === p.id);
             return {
               ...p,
-              // ALWAYS use default iconImage and aiImage, never use stored ones
+              // ALWAYS use default iconImage, aiImage, and script, never use stored ones
               iconImage: defaultProject?.iconImage,
-              aiImage: defaultProject?.aiImage
+              aiImage: defaultProject?.aiImage,
+              script: defaultProject?.script
             };
           });
           setProjects(fixedProjects);
