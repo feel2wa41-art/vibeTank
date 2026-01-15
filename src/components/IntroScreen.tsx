@@ -229,7 +229,33 @@ export default function IntroScreen({ onEnter }: IntroScreenProps) {
   const [showButton, setShowButton] = useState(false);
   const [typedText, setTypedText] = useState('');
   const [startTyping, setStartTyping] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const fullText = 'MISSION BRIEFING INITIALIZED...';
+
+  // Handle Enter Mission button click - play video
+  const handleEnterClick = () => {
+    setShowVideo(true);
+    // Small delay to ensure video element is mounted
+    setTimeout(() => {
+      if (videoRef.current) {
+        videoRef.current.play().catch(console.error);
+      }
+    }, 100);
+  };
+
+  // Handle video end - proceed to main content
+  const handleVideoEnd = () => {
+    onEnter();
+  };
+
+  // Handle skip video
+  const handleSkipVideo = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+    }
+    onEnter();
+  };
 
   // Simulate loading
   useEffect(() => {
@@ -269,6 +295,30 @@ export default function IntroScreen({ onEnter }: IntroScreenProps) {
     }, 50);
     return () => clearInterval(interval);
   }, [startTyping, fullText]);
+
+  // Video intro screen
+  if (showVideo) {
+    return (
+      <div className="fixed inset-0 z-50 bg-black">
+        <video
+          ref={videoRef}
+          className="w-full h-full object-contain"
+          onEnded={handleVideoEnd}
+          playsInline
+        >
+          <source src="/intro/introtank.mp4" type="video/mp4" />
+        </video>
+
+        {/* Skip button */}
+        <button
+          onClick={handleSkipVideo}
+          className="absolute bottom-8 right-8 px-6 py-2 bg-military-900/80 border border-military-500/50 text-military-400 hover:text-military-300 hover:bg-military-800/80 transition-all duration-300 mono-font text-sm tracking-wider"
+        >
+          SKIP →
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 bg-military-950">
@@ -349,7 +399,7 @@ export default function IntroScreen({ onEnter }: IntroScreenProps) {
           {/* Enter button */}
           {showButton && (
             <button
-              onClick={onEnter}
+              onClick={handleEnterClick}
               className="pointer-events-auto group relative px-12 py-4 border-2 border-military-500 bg-military-950/80 hover:bg-military-500 transition-all duration-300"
             >
               <span className="military-font text-2xl text-military-500 group-hover:text-military-950 tracking-widest">
