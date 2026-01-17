@@ -75,15 +75,7 @@ export default function AdminPage({ onBack }: { onBack: () => void }) {
     setProfileInfo({ ...profileInfo, [key]: value });
   };
 
-  // Project handlers
-  const updateProject = (id: number, updates: Partial<Project>) => {
-    console.log('updateProject called with:', { id, description: updates.description?.substring(0, 50) });
-    setProjects((prevProjects: Project[]) => {
-      const newProjects = prevProjects.map((p: Project) => p.id === id ? { ...p, ...updates } : p);
-      console.log('New projects state - project', id, 'description:', newProjects.find((p: Project) => p.id === id)?.description?.substring(0, 50));
-      return newProjects;
-    });
-  };
+  // Project handlers - updateProject removed, now using direct save in button handler
 
   const deleteProject = (id: number) => {
     if (confirm('Delete this project?')) {
@@ -742,9 +734,39 @@ export default function AdminPage({ onBack }: { onBack: () => void }) {
 
                     <div className="flex gap-2">
                       <button
-                        onClick={() => {
-                          updateProject(project.id, editingProject);
+                        onClick={async () => {
+                          // Directly save to Supabase/localStorage without going through context closure
+                          const updatedProjects = projects.map(p =>
+                            p.id === project.id ? { ...p, ...editingProject } : p
+                          );
+
+                          // Update local state
+                          setProjects(updatedProjects);
                           setEditingProject(null);
+
+                          // Immediately save with the new data
+                          const dataToSave = {
+                            projects: updatedProjects,
+                            profileInfo,
+                            goals2026
+                          };
+
+                          console.log('DIRECT SAVE - projects[0].description:', dataToSave.projects[0]?.description?.substring(0, 50));
+
+                          // Save directly using Supabase
+                          if (useSupabase) {
+                            const { supabase } = await import('../lib/supabase');
+                            if (supabase) {
+                              await supabase.from('site_data').delete().eq('id', 'main');
+                              await supabase.from('site_data').insert({
+                                id: 'main',
+                                content: dataToSave,
+                                updated_at: new Date().toISOString()
+                              });
+                              showMessage('success', 'Project saved to cloud!');
+                            }
+                          }
+                          localStorage.setItem('vibetank_data', JSON.stringify(dataToSave));
                         }}
                         className="px-3 py-1 bg-green-600 rounded text-sm font-bold hover:bg-green-500"
                       >
