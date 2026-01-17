@@ -58,8 +58,8 @@ function Explosions() {
   const particlesRef = useRef<THREE.Points>(null);
   const particleCount = 200;
 
-  // Use useMemo to initialize particle data once
-  const { positions, colors } = useMemo(() => {
+  // Use useState lazy init to initialize particle data once (avoids purity issues with Math.random)
+  const [{ positions, colors }] = useState(() => {
     const pos = new Float32Array(particleCount * 3);
     const col = new Float32Array(particleCount * 3);
 
@@ -75,7 +75,7 @@ function Explosions() {
     }
 
     return { positions: pos, colors: col };
-  }, []);
+  });
 
   useFrame((state) => {
     if (particlesRef.current) {
@@ -119,8 +119,8 @@ function Smoke() {
   const smokeRef = useRef<THREE.Points>(null);
   const particleCount = 100;
 
-  // Use useMemo to initialize particle positions once
-  const positions = useMemo(() => {
+  // Use useState lazy init to initialize particle positions once (avoids purity issues with Math.random)
+  const [positions] = useState(() => {
     const pos = new Float32Array(particleCount * 3);
     for (let i = 0; i < particleCount; i++) {
       pos[i * 3] = (Math.random() - 0.5) * 15;
@@ -128,7 +128,7 @@ function Smoke() {
       pos[i * 3 + 2] = (Math.random() - 0.5) * 15 - 5;
     }
     return pos;
-  }, []);
+  });
 
   useFrame(() => {
     if (smokeRef.current) {

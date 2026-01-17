@@ -50,13 +50,6 @@ const OutputIcon = ({ type }: { type: string }) => {
 };
 
 export function ProjectSection({ project }: ProjectSectionProps) {
-  console.log(`ProjectSection [${project.id}] render:`, {
-    name: project.name,
-    description: project.description?.substring(0, 50) + '...',
-    period: project.period,
-    timeline: project.timeline
-  });
-
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const detailsRef = useRef<HTMLDivElement>(null);
 

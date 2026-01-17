@@ -247,7 +247,10 @@ export function Goals2026Section() {
         <div className={`w-full max-w-4xl transition-all duration-1000 delay-500 ${loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <div className="relative">
             {/* Timeline line */}
-            <div className="absolute top-4 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-500 via-purple-500 via-yellow-500 to-green-500 opacity-60" />
+            <div
+              className="absolute top-4 left-0 right-0 h-0.5 opacity-60"
+              style={{ background: 'linear-gradient(to right, #06b6d4, #a855f7, #eab308, #22c55e)' }}
+            />
 
             <div className="flex justify-between relative">
               {['Q1', 'Q2', 'Q3', 'Q4'].map((quarter, i) => (

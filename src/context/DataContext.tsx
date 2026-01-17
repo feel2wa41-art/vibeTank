@@ -98,18 +98,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // Custom setters that update ref BEFORE state (truly synchronous)
   // React's setState with function runs async, so we compute using ref and update ref first
   const setProjectsWithRef = useCallback((newProjects: Project[] | ((prev: Project[]) => Project[])) => {
-    console.log('=== setProjectsWithRef CALLED ===');
     if (typeof newProjects === 'function') {
-      console.log('Called with FUNCTION, current ref[0]:', projectsRef.current?.[0]?.description?.substring(0, 50));
-      // Compute new value using current ref (not React state which may be stale)
       const newValue = newProjects(projectsRef.current);
-      projectsRef.current = newValue; // Update ref IMMEDIATELY
-      console.log('REF NOW UPDATED to[0]:', projectsRef.current?.[0]?.description?.substring(0, 50));
+      projectsRef.current = newValue;
       setProjects(newValue);
     } else {
-      console.log('Called with ARRAY, setting ref[0]:', newProjects?.[0]?.description?.substring(0, 50));
       projectsRef.current = newProjects;
-      console.log('REF NOW SET to[0]:', projectsRef.current?.[0]?.description?.substring(0, 50));
       setProjects(newProjects);
     }
   }, []);
@@ -150,13 +144,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
         .single();
 
       if (error) {
-        console.log('Supabase load error (may be first run):', error.message);
         return false;
       }
 
       if (data?.content) {
         const content = data.content;
-        console.log('Supabase loaded - raw projects:', JSON.stringify(content.projects));
         // Load data directly from Supabase without modification - use WithRef setters to sync refs
         if (content.projects) {
           setProjectsWithRef(content.projects);
@@ -213,18 +205,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
     if (!supabase) return false;
 
     try {
-      // Log what we're saving
-      console.log('Saving to Supabase - Project 4 description:', data.projects?.[3]?.description);
-
       // Delete existing row first
-      const { error: deleteError } = await supabase
+      await supabase
         .from(SUPABASE_TABLE)
         .delete()
         .eq('id', 'main');
-
-      if (deleteError) {
-        console.error('Delete failed:', deleteError);
-      }
 
       // Insert new row
       const { error: insertError } = await supabase
@@ -235,15 +220,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
           updated_at: new Date().toISOString()
         });
 
-      if (insertError) {
-        console.error('Insert failed:', insertError);
-        throw insertError;
-      }
-
-      console.log('Supabase save successful!');
+      if (insertError) throw insertError;
       return true;
-    } catch (error) {
-      console.error('Supabase save failed:', error);
+    } catch {
       return false;
     }
   }, []);
@@ -253,8 +232,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       return true;
-    } catch (error) {
-      console.error('localStorage save failed:', error);
+    } catch {
       return false;
     }
   }, []);
@@ -263,20 +241,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const saveData = async () => {
     setIsSaving(true);
 
-    // Debug: compare state vs ref
-    console.log('=== SAVE DATA DEBUG ===');
-    console.log('STATE projects[0].description:', projects?.[0]?.description?.substring(0, 50));
-    console.log('REF projects[0].description:', projectsRef.current?.[0]?.description?.substring(0, 50));
-    console.log('Are they same?:', projects === projectsRef.current);
-
     // Use REFS - they are updated synchronously in setProjectsWithRef
     const data = {
       projects: projectsRef.current,
       profileInfo: profileInfoRef.current,
       goals2026: goals2026Ref.current
     };
-
-    console.log('Saving with projects[0].description:', data.projects?.[0]?.description?.substring(0, 50));
 
     // Always save to localStorage as backup
     saveToLocalStorage(data);

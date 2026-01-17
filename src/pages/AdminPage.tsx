@@ -741,11 +741,6 @@ export default function AdminPage({ onBack }: { onBack: () => void }) {
                               p.id === project.id ? { ...p, ...editingProject } : p
                             );
 
-                            console.log('=== DIRECT SAVE START ===');
-                            console.log('Editing project ID:', project.id);
-                            console.log('New description:', editingProject.description?.substring(0, 80));
-                            console.log('Updated projects[0].description:', updatedProjects[0]?.description?.substring(0, 80));
-
                             // Immediately save with the new data
                             const dataToSave = {
                               projects: updatedProjects,
@@ -755,29 +750,20 @@ export default function AdminPage({ onBack }: { onBack: () => void }) {
 
                             // Save to localStorage first
                             localStorage.setItem('vibetank_data', JSON.stringify(dataToSave));
-                            console.log('Saved to localStorage');
 
                             // Save directly using Supabase
                             if (useSupabase) {
                               const { supabase } = await import('../lib/supabase');
                               if (supabase) {
                                 const { error: deleteError } = await supabase.from('site_data').delete().eq('id', 'main');
-                                if (deleteError) {
-                                  console.error('Delete error:', deleteError);
-                                  throw deleteError;
-                                }
-                                console.log('Deleted old data');
+                                if (deleteError) throw deleteError;
 
                                 const { error: insertError } = await supabase.from('site_data').insert({
                                   id: 'main',
                                   content: dataToSave,
                                   updated_at: new Date().toISOString()
                                 });
-                                if (insertError) {
-                                  console.error('Insert error:', insertError);
-                                  throw insertError;
-                                }
-                                console.log('=== DIRECT SAVE SUCCESS ===');
+                                if (insertError) throw insertError;
                                 showMessage('success', 'Project saved to cloud!');
                               }
                             } else {
@@ -788,7 +774,6 @@ export default function AdminPage({ onBack }: { onBack: () => void }) {
                             setProjects(updatedProjects);
                             setEditingProject(null);
                           } catch (err) {
-                            console.error('=== DIRECT SAVE FAILED ===', err);
                             showMessage('error', 'Failed to save: ' + (err as Error).message);
                           }
                         }}
