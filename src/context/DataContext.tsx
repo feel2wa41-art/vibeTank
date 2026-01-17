@@ -255,17 +255,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Main save function - uses state directly (recreated when state changes)
-  const saveData = useCallback(async () => {
+  // Main save function - NO useCallback to ensure fresh state every call
+  const saveData = async () => {
     setIsSaving(true);
-    // Use state directly - this callback is recreated when state changes
+    // Read state at call time, not closure time
     const data = {
       projects,
       profileInfo,
       goals2026
     };
 
-    console.log('saveData - projects[3].description:', data.projects?.[3]?.description?.substring(0, 50));
+    console.log('saveData called - projects[3].description:', data.projects?.[3]?.description?.substring(0, 50));
+    console.log('saveData called - projects[0].description:', data.projects?.[0]?.description?.substring(0, 50));
 
     // Always save to localStorage as backup
     saveToLocalStorage(data);
@@ -276,7 +277,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
     setLastSaved(new Date());
     setIsSaving(false);
-  }, [projects, profileInfo, goals2026, useSupabase, saveToSupabase, saveToLocalStorage]);
+  };
 
   // Export data as JSON
   const exportData = useCallback((): string => {
