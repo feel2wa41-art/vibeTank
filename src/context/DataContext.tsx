@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 import { projects as defaultProjects, profileInfo as defaultProfile, type Project } from '../data/projects';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 
@@ -89,6 +89,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+
+  // Refs to always have latest state (to avoid stale closure in saveData)
+  const projectsRef = useRef(projects);
+  const profileInfoRef = useRef(profileInfo);
+  const goals2026Ref = useRef(goals2026);
+
+  // Keep refs in sync with state
+  useEffect(() => { projectsRef.current = projects; }, [projects]);
+  useEffect(() => { profileInfoRef.current = profileInfo; }, [profileInfo]);
+  useEffect(() => { goals2026Ref.current = goals2026; }, [goals2026]);
 
   const useSupabase = isSupabaseConfigured();
 
@@ -213,10 +223,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Main save function
+  // Main save function - uses refs to always get latest state
   const saveData = useCallback(async () => {
     setIsSaving(true);
-    const data = { projects, profileInfo, goals2026 };
+    // Use refs to get the LATEST state values (avoids stale closure)
+    const data = {
+      projects: projectsRef.current,
+      profileInfo: profileInfoRef.current,
+      goals2026: goals2026Ref.current
+    };
+
+    console.log('saveData - projects[3].description:', data.projects?.[3]?.description?.substring(0, 50));
 
     // Always save to localStorage as backup
     saveToLocalStorage(data);
@@ -227,7 +244,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
     setLastSaved(new Date());
     setIsSaving(false);
-  }, [projects, profileInfo, goals2026, useSupabase, saveToSupabase, saveToLocalStorage]);
+  }, [useSupabase, saveToSupabase, saveToLocalStorage]);
 
   // Export data as JSON
   const exportData = useCallback((): string => {

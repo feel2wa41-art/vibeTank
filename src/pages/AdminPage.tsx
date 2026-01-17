@@ -77,7 +77,12 @@ export default function AdminPage({ onBack }: { onBack: () => void }) {
 
   // Project handlers
   const updateProject = (id: number, updates: Partial<Project>) => {
-    setProjects(projects.map(p => p.id === id ? { ...p, ...updates } : p));
+    console.log('updateProject called with:', { id, description: updates.description?.substring(0, 50) });
+    setProjects(prevProjects => {
+      const newProjects = prevProjects.map(p => p.id === id ? { ...p, ...updates } : p);
+      console.log('New projects state - project', id, 'description:', newProjects.find(p => p.id === id)?.description?.substring(0, 50));
+      return newProjects;
+    });
   };
 
   const deleteProject = (id: number) => {
