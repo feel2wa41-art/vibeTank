@@ -110,22 +110,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
       if (data?.content) {
         const content = data.content;
-        console.log('Supabase loaded content:', JSON.stringify(content.projects?.[3]?.description || 'no project 4'));
-        // Merge with defaults to ensure all required fields exist and fix old data
+        console.log('Supabase loaded - raw projects:', JSON.stringify(content.projects));
+        // Load data directly from Supabase without modification
         if (content.projects) {
-          // Fix image paths: ALWAYS use default iconImage and aiImage paths (ignore stored paths)
-          const fixedProjects = content.projects.map((p: Project) => {
-            // Find matching default project by id
-            const defaultProject = defaultProjects.find(dp => dp.id === p.id);
-            return {
-              ...p,
-              // ALWAYS use default iconImage, aiImage, and script, never use stored ones
-              iconImage: defaultProject?.iconImage,
-              aiImage: defaultProject?.aiImage,
-              script: defaultProject?.script
-            };
-          });
-          setProjects(fixedProjects);
+          setProjects(content.projects);
         }
         if (content.profileInfo) setProfileInfo(content.profileInfo);
         if (content.goals2026) setGoals2026(content.goals2026);
@@ -144,21 +132,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const data = JSON.parse(stored);
-        // Fix image paths: ALWAYS use default iconImage and aiImage paths (ignore stored paths)
-        if (data.projects) {
-          const fixedProjects = data.projects.map((p: Project) => {
-            // Find matching default project by id
-            const defaultProject = defaultProjects.find(dp => dp.id === p.id);
-            return {
-              ...p,
-              // ALWAYS use default iconImage, aiImage, and script, never use stored ones
-              iconImage: defaultProject?.iconImage,
-              aiImage: defaultProject?.aiImage,
-              script: defaultProject?.script
-            };
-          });
-          setProjects(fixedProjects);
-        }
+        // Load data directly without modification
+        if (data.projects) setProjects(data.projects);
         if (data.profileInfo) setProfileInfo(data.profileInfo);
         if (data.goals2026) setGoals2026(data.goals2026);
         return true;
