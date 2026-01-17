@@ -95,15 +95,15 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const profileInfoRef = useRef(profileInfo);
   const goals2026Ref = useRef(goals2026);
 
-  // Custom setters that update both state AND ref synchronously
+  // Custom setters that update ref BEFORE state (truly synchronous)
+  // React's setState with function runs async, so we compute using ref and update ref first
   const setProjectsWithRef = useCallback((newProjects: Project[] | ((prev: Project[]) => Project[])) => {
     if (typeof newProjects === 'function') {
-      setProjects(prev => {
-        const result = newProjects(prev);
-        projectsRef.current = result;
-        console.log('setProjectsWithRef - updated ref with:', result[3]?.description?.substring(0, 50));
-        return result;
-      });
+      // Compute new value using current ref (not React state which may be stale)
+      const newValue = newProjects(projectsRef.current);
+      projectsRef.current = newValue; // Update ref IMMEDIATELY
+      console.log('setProjectsWithRef - ref updated to:', newValue[3]?.description?.substring(0, 50));
+      setProjects(newValue);
     } else {
       projectsRef.current = newProjects;
       setProjects(newProjects);
@@ -112,11 +112,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const setProfileInfoWithRef = useCallback((newInfo: ProfileInfo | ((prev: ProfileInfo) => ProfileInfo)) => {
     if (typeof newInfo === 'function') {
-      setProfileInfo(prev => {
-        const result = newInfo(prev);
-        profileInfoRef.current = result;
-        return result;
-      });
+      const newValue = newInfo(profileInfoRef.current);
+      profileInfoRef.current = newValue;
+      setProfileInfo(newValue);
     } else {
       profileInfoRef.current = newInfo;
       setProfileInfo(newInfo);
@@ -125,11 +123,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const setGoals2026WithRef = useCallback((newGoals: Goal[] | ((prev: Goal[]) => Goal[])) => {
     if (typeof newGoals === 'function') {
-      setGoals2026(prev => {
-        const result = newGoals(prev);
-        goals2026Ref.current = result;
-        return result;
-      });
+      const newValue = newGoals(goals2026Ref.current);
+      goals2026Ref.current = newValue;
+      setGoals2026(newValue);
     } else {
       goals2026Ref.current = newGoals;
       setGoals2026(newGoals);
