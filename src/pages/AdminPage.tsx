@@ -735,38 +735,62 @@ export default function AdminPage({ onBack }: { onBack: () => void }) {
                     <div className="flex gap-2">
                       <button
                         onClick={async () => {
-                          // Directly save to Supabase/localStorage without going through context closure
-                          const updatedProjects = projects.map(p =>
-                            p.id === project.id ? { ...p, ...editingProject } : p
-                          );
+                          try {
+                            // Directly save to Supabase/localStorage without going through context closure
+                            const updatedProjects = projects.map(p =>
+                              p.id === project.id ? { ...p, ...editingProject } : p
+                            );
 
-                          // Update local state
-                          setProjects(updatedProjects);
-                          setEditingProject(null);
+                            console.log('=== DIRECT SAVE START ===');
+                            console.log('Editing project ID:', project.id);
+                            console.log('New description:', editingProject.description?.substring(0, 80));
+                            console.log('Updated projects[0].description:', updatedProjects[0]?.description?.substring(0, 80));
 
-                          // Immediately save with the new data
-                          const dataToSave = {
-                            projects: updatedProjects,
-                            profileInfo,
-                            goals2026
-                          };
+                            // Immediately save with the new data
+                            const dataToSave = {
+                              projects: updatedProjects,
+                              profileInfo,
+                              goals2026
+                            };
 
-                          console.log('DIRECT SAVE - projects[0].description:', dataToSave.projects[0]?.description?.substring(0, 50));
+                            // Save to localStorage first
+                            localStorage.setItem('vibetank_data', JSON.stringify(dataToSave));
+                            console.log('Saved to localStorage');
 
-                          // Save directly using Supabase
-                          if (useSupabase) {
-                            const { supabase } = await import('../lib/supabase');
-                            if (supabase) {
-                              await supabase.from('site_data').delete().eq('id', 'main');
-                              await supabase.from('site_data').insert({
-                                id: 'main',
-                                content: dataToSave,
-                                updated_at: new Date().toISOString()
-                              });
-                              showMessage('success', 'Project saved to cloud!');
+                            // Save directly using Supabase
+                            if (useSupabase) {
+                              const { supabase } = await import('../lib/supabase');
+                              if (supabase) {
+                                const { error: deleteError } = await supabase.from('site_data').delete().eq('id', 'main');
+                                if (deleteError) {
+                                  console.error('Delete error:', deleteError);
+                                  throw deleteError;
+                                }
+                                console.log('Deleted old data');
+
+                                const { error: insertError } = await supabase.from('site_data').insert({
+                                  id: 'main',
+                                  content: dataToSave,
+                                  updated_at: new Date().toISOString()
+                                });
+                                if (insertError) {
+                                  console.error('Insert error:', insertError);
+                                  throw insertError;
+                                }
+                                console.log('=== DIRECT SAVE SUCCESS ===');
+                                showMessage('success', 'Project saved to cloud!');
+                              }
+                            } else {
+                              showMessage('success', 'Project saved locally!');
                             }
+
+                            // Update local state AFTER successful save
+                            setProjects(updatedProjects);
+                            setEditingProject(null);
+                          } catch (err) {
+                            console.error('=== DIRECT SAVE FAILED ===', err);
+                            showMessage('error', 'Failed to save: ' + (err as Error).message);
                           }
-                          localStorage.setItem('vibetank_data', JSON.stringify(dataToSave));
                         }}
                         className="px-3 py-1 bg-green-600 rounded text-sm font-bold hover:bg-green-500"
                       >
