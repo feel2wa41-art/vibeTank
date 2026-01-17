@@ -192,31 +192,34 @@ export function DataProvider({ children }: { children: ReactNode }) {
     if (!supabase) return false;
 
     try {
-      // First try to update existing row
-      const { data: updateResult, error: updateError } = await supabase
+      // Log what we're saving
+      console.log('Saving to Supabase - Project 4 description:', data.projects?.[3]?.description);
+
+      // Delete existing row first
+      const { error: deleteError } = await supabase
         .from(SUPABASE_TABLE)
-        .update({
-          content: data,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', 'main')
-        .select();
+        .delete()
+        .eq('id', 'main');
 
-      if (updateError) throw updateError;
-
-      // If no rows were updated, insert new row
-      if (!updateResult || updateResult.length === 0) {
-        const { error: insertError } = await supabase
-          .from(SUPABASE_TABLE)
-          .insert({
-            id: 'main',
-            content: data,
-            updated_at: new Date().toISOString()
-          });
-        if (insertError) throw insertError;
+      if (deleteError) {
+        console.error('Delete failed:', deleteError);
       }
 
-      console.log('Supabase save successful, updated rows:', updateResult?.length || 'inserted new');
+      // Insert new row
+      const { error: insertError } = await supabase
+        .from(SUPABASE_TABLE)
+        .insert({
+          id: 'main',
+          content: data,
+          updated_at: new Date().toISOString()
+        });
+
+      if (insertError) {
+        console.error('Insert failed:', insertError);
+        throw insertError;
+      }
+
+      console.log('Supabase save successful!');
       return true;
     } catch (error) {
       console.error('Supabase save failed:', error);
