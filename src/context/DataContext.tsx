@@ -255,14 +255,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Main save function - uses refs to always get latest state
+  // Main save function - uses state directly (recreated when state changes)
   const saveData = useCallback(async () => {
     setIsSaving(true);
-    // Use refs to get the LATEST state values (avoids stale closure)
+    // Use state directly - this callback is recreated when state changes
     const data = {
-      projects: projectsRef.current,
-      profileInfo: profileInfoRef.current,
-      goals2026: goals2026Ref.current
+      projects,
+      profileInfo,
+      goals2026
     };
 
     console.log('saveData - projects[3].description:', data.projects?.[3]?.description?.substring(0, 50));
@@ -276,7 +276,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
     setLastSaved(new Date());
     setIsSaving(false);
-  }, [useSupabase, saveToSupabase, saveToLocalStorage]);
+  }, [projects, profileInfo, goals2026, useSupabase, saveToSupabase, saveToLocalStorage]);
 
   // Export data as JSON
   const exportData = useCallback((): string => {
