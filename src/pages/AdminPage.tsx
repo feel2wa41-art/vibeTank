@@ -367,11 +367,22 @@ export default function AdminPage({ onBack }: { onBack: () => void }) {
                         </p>
                       </div>
                       <div>
-                        <label className="block mono-font text-xs text-military-400 mb-1">Period</label>
+                        <label className="block mono-font text-xs text-military-400 mb-1">Period (Short)</label>
                         <input
                           type="text"
                           value={editingProject.period}
                           onChange={e => setEditingProject({ ...editingProject, period: e.target.value })}
+                          placeholder="e.g. JAN — JUL"
+                          className="w-full px-2 py-1 bg-military-800 border border-military-600 rounded text-white text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block mono-font text-xs text-military-400 mb-1">Timeline (Full)</label>
+                        <input
+                          type="text"
+                          value={editingProject.timeline}
+                          onChange={e => setEditingProject({ ...editingProject, timeline: e.target.value })}
+                          placeholder="e.g. JAN 2025 — JUL 2025"
                           className="w-full px-2 py-1 bg-military-800 border border-military-600 rounded text-white text-sm"
                         />
                       </div>
