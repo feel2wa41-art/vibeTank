@@ -78,9 +78,9 @@ export default function AdminPage({ onBack }: { onBack: () => void }) {
   // Project handlers
   const updateProject = (id: number, updates: Partial<Project>) => {
     console.log('updateProject called with:', { id, description: updates.description?.substring(0, 50) });
-    setProjects(prevProjects => {
-      const newProjects = prevProjects.map(p => p.id === id ? { ...p, ...updates } : p);
-      console.log('New projects state - project', id, 'description:', newProjects.find(p => p.id === id)?.description?.substring(0, 50));
+    setProjects((prevProjects: Project[]) => {
+      const newProjects = prevProjects.map((p: Project) => p.id === id ? { ...p, ...updates } : p);
+      console.log('New projects state - project', id, 'description:', newProjects.find((p: Project) => p.id === id)?.description?.substring(0, 50));
       return newProjects;
     });
   };

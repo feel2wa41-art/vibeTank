@@ -22,11 +22,11 @@ export interface ProfileInfo {
 
 interface DataContextType {
   projects: Project[];
-  setProjects: (projects: Project[]) => void;
+  setProjects: (projects: Project[] | ((prev: Project[]) => Project[])) => void;
   profileInfo: ProfileInfo;
-  setProfileInfo: (info: ProfileInfo) => void;
+  setProfileInfo: (info: ProfileInfo | ((prev: ProfileInfo) => ProfileInfo)) => void;
   goals2026: Goal[];
-  setGoals2026: (goals: Goal[]) => void;
+  setGoals2026: (goals: Goal[] | ((prev: Goal[]) => Goal[])) => void;
   saveData: () => Promise<void>;
   loadData: () => Promise<void>;
   exportData: () => string;
@@ -95,10 +95,46 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const profileInfoRef = useRef(profileInfo);
   const goals2026Ref = useRef(goals2026);
 
-  // Keep refs in sync with state
-  useEffect(() => { projectsRef.current = projects; }, [projects]);
-  useEffect(() => { profileInfoRef.current = profileInfo; }, [profileInfo]);
-  useEffect(() => { goals2026Ref.current = goals2026; }, [goals2026]);
+  // Custom setters that update both state AND ref synchronously
+  const setProjectsWithRef = useCallback((newProjects: Project[] | ((prev: Project[]) => Project[])) => {
+    if (typeof newProjects === 'function') {
+      setProjects(prev => {
+        const result = newProjects(prev);
+        projectsRef.current = result;
+        console.log('setProjectsWithRef - updated ref with:', result[3]?.description?.substring(0, 50));
+        return result;
+      });
+    } else {
+      projectsRef.current = newProjects;
+      setProjects(newProjects);
+    }
+  }, []);
+
+  const setProfileInfoWithRef = useCallback((newInfo: ProfileInfo | ((prev: ProfileInfo) => ProfileInfo)) => {
+    if (typeof newInfo === 'function') {
+      setProfileInfo(prev => {
+        const result = newInfo(prev);
+        profileInfoRef.current = result;
+        return result;
+      });
+    } else {
+      profileInfoRef.current = newInfo;
+      setProfileInfo(newInfo);
+    }
+  }, []);
+
+  const setGoals2026WithRef = useCallback((newGoals: Goal[] | ((prev: Goal[]) => Goal[])) => {
+    if (typeof newGoals === 'function') {
+      setGoals2026(prev => {
+        const result = newGoals(prev);
+        goals2026Ref.current = result;
+        return result;
+      });
+    } else {
+      goals2026Ref.current = newGoals;
+      setGoals2026(newGoals);
+    }
+  }, []);
 
   const useSupabase = isSupabaseConfigured();
 
@@ -121,12 +157,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
       if (data?.content) {
         const content = data.content;
         console.log('Supabase loaded - raw projects:', JSON.stringify(content.projects));
-        // Load data directly from Supabase without modification
+        // Load data directly from Supabase without modification - use WithRef setters to sync refs
         if (content.projects) {
-          setProjects(content.projects);
+          setProjectsWithRef(content.projects);
         }
-        if (content.profileInfo) setProfileInfo(content.profileInfo);
-        if (content.goals2026) setGoals2026(content.goals2026);
+        if (content.profileInfo) setProfileInfoWithRef(content.profileInfo);
+        if (content.goals2026) setGoals2026WithRef(content.goals2026);
         return true;
       }
       return false;
@@ -134,7 +170,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       console.error('Supabase load failed:', error);
       return false;
     }
-  }, []);
+  }, [setProjectsWithRef, setProfileInfoWithRef, setGoals2026WithRef]);
 
   // Load from localStorage
   const loadFromLocalStorage = useCallback(() => {
@@ -142,10 +178,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const data = JSON.parse(stored);
-        // Load data directly without modification
-        if (data.projects) setProjects(data.projects);
-        if (data.profileInfo) setProfileInfo(data.profileInfo);
-        if (data.goals2026) setGoals2026(data.goals2026);
+        // Load data directly without modification - use WithRef setters to sync refs
+        if (data.projects) setProjectsWithRef(data.projects);
+        if (data.profileInfo) setProfileInfoWithRef(data.profileInfo);
+        if (data.goals2026) setGoals2026WithRef(data.goals2026);
         return true;
       }
       return false;
@@ -153,7 +189,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       console.error('localStorage load failed:', error);
       return false;
     }
-  }, []);
+  }, [setProjectsWithRef, setProfileInfoWithRef, setGoals2026WithRef]);
 
   // Main load function
   const loadData = useCallback(async () => {
@@ -262,27 +298,27 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const importData = useCallback((jsonString: string): boolean => {
     try {
       const data = JSON.parse(jsonString);
-      if (data.projects) setProjects(data.projects);
-      if (data.profileInfo) setProfileInfo(data.profileInfo);
-      if (data.goals2026) setGoals2026(data.goals2026);
+      if (data.projects) setProjectsWithRef(data.projects);
+      if (data.profileInfo) setProfileInfoWithRef(data.profileInfo);
+      if (data.goals2026) setGoals2026WithRef(data.goals2026);
       return true;
     } catch (error) {
       console.error('Import failed:', error);
       return false;
     }
-  }, []);
+  }, [setProjectsWithRef, setProfileInfoWithRef, setGoals2026WithRef]);
 
   // Reset to default
   const resetToDefault = useCallback(async () => {
-    setProjects(defaultProjects);
-    setProfileInfo(defaultProfile);
-    setGoals2026(defaultGoals2026);
+    setProjectsWithRef(defaultProjects);
+    setProfileInfoWithRef(defaultProfile);
+    setGoals2026WithRef(defaultGoals2026);
     localStorage.removeItem(STORAGE_KEY);
 
     if (useSupabase && supabase) {
       await supabase.from(SUPABASE_TABLE).delete().eq('id', 'main');
     }
-  }, [useSupabase]);
+  }, [useSupabase, setProjectsWithRef, setProfileInfoWithRef, setGoals2026WithRef]);
 
   // Load data on mount
   useEffect(() => {
@@ -292,11 +328,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
   return (
     <DataContext.Provider value={{
       projects,
-      setProjects,
+      setProjects: setProjectsWithRef,
       profileInfo,
-      setProfileInfo,
+      setProfileInfo: setProfileInfoWithRef,
       goals2026,
-      setGoals2026,
+      setGoals2026: setGoals2026WithRef,
       saveData,
       loadData,
       exportData,
