@@ -110,6 +110,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
       if (data?.content) {
         const content = data.content;
+        console.log('Supabase loaded content:', JSON.stringify(content.projects?.[3]?.description || 'no project 4'));
         // Merge with defaults to ensure all required fields exist and fix old data
         if (content.projects) {
           // Fix image paths: ALWAYS use default iconImage and aiImage paths (ignore stored paths)
@@ -191,18 +192,31 @@ export function DataProvider({ children }: { children: ReactNode }) {
     if (!supabase) return false;
 
     try {
-      const { error } = await supabase
+      // First try to update existing row
+      const { data: updateResult, error: updateError } = await supabase
         .from(SUPABASE_TABLE)
-        .upsert(
-          {
+        .update({
+          content: data,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', 'main')
+        .select();
+
+      if (updateError) throw updateError;
+
+      // If no rows were updated, insert new row
+      if (!updateResult || updateResult.length === 0) {
+        const { error: insertError } = await supabase
+          .from(SUPABASE_TABLE)
+          .insert({
             id: 'main',
             content: data,
             updated_at: new Date().toISOString()
-          },
-          { onConflict: 'id' }
-        );
+          });
+        if (insertError) throw insertError;
+      }
 
-      if (error) throw error;
+      console.log('Supabase save successful, updated rows:', updateResult?.length || 'inserted new');
       return true;
     } catch (error) {
       console.error('Supabase save failed:', error);
