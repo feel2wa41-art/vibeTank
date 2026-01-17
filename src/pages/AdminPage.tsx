@@ -439,7 +439,7 @@ export default function AdminPage({ onBack }: { onBack: () => void }) {
 
                     {/* Presentation Script */}
                     <div className="border-t border-amber-500/30 pt-4 mt-4">
-                      <label className="block mono-font text-xs text-amber-400 mb-1 flex items-center gap-2">
+                      <label className="mono-font text-xs text-amber-400 mb-1 flex items-center gap-2">
                         <span>📜</span> Presentation Script
                       </label>
                       <textarea

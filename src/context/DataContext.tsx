@@ -193,11 +193,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
     try {
       const { error } = await supabase
         .from(SUPABASE_TABLE)
-        .upsert({
-          id: 'main',
-          content: data,
-          updated_at: new Date().toISOString()
-        });
+        .upsert(
+          {
+            id: 'main',
+            content: data,
+            updated_at: new Date().toISOString()
+          },
+          { onConflict: 'id' }
+        );
 
       if (error) throw error;
       return true;
