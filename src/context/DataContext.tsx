@@ -98,14 +98,18 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // Custom setters that update ref BEFORE state (truly synchronous)
   // React's setState with function runs async, so we compute using ref and update ref first
   const setProjectsWithRef = useCallback((newProjects: Project[] | ((prev: Project[]) => Project[])) => {
+    console.log('=== setProjectsWithRef CALLED ===');
     if (typeof newProjects === 'function') {
+      console.log('Called with FUNCTION, current ref[0]:', projectsRef.current?.[0]?.description?.substring(0, 50));
       // Compute new value using current ref (not React state which may be stale)
       const newValue = newProjects(projectsRef.current);
       projectsRef.current = newValue; // Update ref IMMEDIATELY
-      console.log('setProjectsWithRef - ref updated to:', newValue[3]?.description?.substring(0, 50));
+      console.log('REF NOW UPDATED to[0]:', projectsRef.current?.[0]?.description?.substring(0, 50));
       setProjects(newValue);
     } else {
+      console.log('Called with ARRAY, setting ref[0]:', newProjects?.[0]?.description?.substring(0, 50));
       projectsRef.current = newProjects;
+      console.log('REF NOW SET to[0]:', projectsRef.current?.[0]?.description?.substring(0, 50));
       setProjects(newProjects);
     }
   }, []);
@@ -255,18 +259,24 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Main save function - NO useCallback to ensure fresh state every call
+  // Main save function - reads from refs which are always up-to-date
   const saveData = async () => {
     setIsSaving(true);
-    // Read state at call time, not closure time
+
+    // Debug: compare state vs ref
+    console.log('=== SAVE DATA DEBUG ===');
+    console.log('STATE projects[0].description:', projects?.[0]?.description?.substring(0, 50));
+    console.log('REF projects[0].description:', projectsRef.current?.[0]?.description?.substring(0, 50));
+    console.log('Are they same?:', projects === projectsRef.current);
+
+    // Use REFS - they are updated synchronously in setProjectsWithRef
     const data = {
-      projects,
-      profileInfo,
-      goals2026
+      projects: projectsRef.current,
+      profileInfo: profileInfoRef.current,
+      goals2026: goals2026Ref.current
     };
 
-    console.log('saveData called - projects[3].description:', data.projects?.[3]?.description?.substring(0, 50));
-    console.log('saveData called - projects[0].description:', data.projects?.[0]?.description?.substring(0, 50));
+    console.log('Saving with projects[0].description:', data.projects?.[0]?.description?.substring(0, 50));
 
     // Always save to localStorage as backup
     saveToLocalStorage(data);
